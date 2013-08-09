@@ -1,0 +1,33 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item 
+        android:id="@+id/action_setup" 
+        android:title="@string/setupmenu" 
+        android:enabled="true" 
+        android:visible="true" 
+        android:showAsAction="never" />
+    
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/title_activity_settings" 
+        android:enabled="false" 
+        android:visible="false"
+        android:showAsAction="never"
+        android:orderInCategory="100" />
+    
+    <item 
+        android:id="@+id/action_refresh" 
+        android:title="@string/refresh" 
+        android:enabled="true" 
+        android:visible="true" 
+        android:showAsAction="never"/>
+    
+    <item 
+        android:id="@+id/action_credits" 
+        android:title="@string/title_activity_credit" 
+        android:visible="true" 
+        android:enabled="true" 
+        android:showAsAction="never" />
+    
+
+</menu>

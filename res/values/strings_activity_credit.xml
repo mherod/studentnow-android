@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>   
+    
+    <string-array name="credits">
+        <item>Matthew Herod;matthewherod.co.uk</item>
+        <item>CardsUI View library;nadavfima.com</item>
+        <item>NineOldAndroids;nineoldandroids.com;Apache 2.0 license</item>
+    </string-array>    
+    
+</resources>

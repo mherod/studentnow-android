@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Student Now</string>
+    <string name="uni_nottingham">University of Nottingham</string>
+    <string name="uni_nottingham_desc">Student Now is a project currently exclusively for the University of Nottingham</string>
+    <string name="week">Week</string>
+    <string name="week_desc">The latest information for your next course sessions is available.</string>
+    <string name="week_later">You\'ve finished for today! Your sessions continue</string>
+    <string name="action_settings">Settings</string>
+    <string name="search">Search</string>
+    <string name="title_activity_course_search">Search Course</string>
+    <string name="select_course">Select course</string>
+    <string name="card_over_title">Sessions finished!</string>
+    <string name="card_over_desc">You\'ve finished all of your course sessions for this year!</string>
+    <string name="card_examreminder_title">Reminder: Exams!</string>
+    <string name="card_examreminder_desc">Student Now does not currently provide exam seating information. You should check the University Portal and make a note of this yourself.</string>
+    <string name="card_weekover_desc">You\'ve finished for this week!</string>
+    <string name="card_timetableerror_title">Timetable error :(</string>
+    <string name="card_timetableerror_desc">Sorry! There was an error processing your latest timetable information. This is probably our fault and your timetable should return when the issue is resolved.</string>
+    <string name="tap_to_open_your_agenda">Tap to see your sessions for the rest of the week.</string>
+    <string name="refresh">Refresh</string>
+    <string name="title_activity_credit">Credit</string>
+    <string name="sessions_notification_title_template">Sessions: %1$s</string>
+    <string name="sessions_notification_placeholder_text_template">You said %1$s and lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam non enim magna. Morbi dictum, velit vel semper venenatis, magna odio volutpat velit, at ullamcorper nulla lacus sed turpis. Pellentesque vitae metus elit, nec tincidunt tellus. Integer sed nisl sem, ullamcorper ornare lacus. Duis ac mauris sed massa congue volutpat. Donec sed erat sit amet turpis viverra rhoncus sit amet nec magna. Donec lacinia ligula at libero volutpat volutpat nec nec tortor.</string>
+    <string name="action_share">Share</string>
+    <string name="action_reply">Reply</string>
+    <string name="title_activity_session">Session</string>
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+    <string name="cantfind">Can\'t find the programme you\'re looking for? Tap here for more information</string>
+    <string name="title_activity_setup_programme">Setup</string>
+    <string name="setupmenu">Find programme</string>
+    <string name="setup_title_selectuni">Institution</string>
+    <string name="setup_title_" />
+    <string name="welcome">Welcome!</string>
+    <string name="welcome_introduction">Student Now is a timetable assistant for university students. You will receive helpful notifications keeping you informed what sessions you have and where.</string>
+    <string name="help">Help</string>
+    <string name="next">Next</string>
+    <string name="prev">Previous</string>
+    <string name="action_exit">Exit</string>
+    <string name="finish">Finish</string>
+    <string name="swipe_setup">Swipe your cards</string>
+    <string name="swipe_setup_content">Swipe these cards to move onto the next stage of the setup</string>
+    <string name="setup_select_university">Select university</string>
+    <string name="setup_select_university_content">We need to know what university you go to in order to retrieve your timetable</string>
+    <string name="setup_select_course">Select programme</string>
+    <string name="setup_select_course_content">Select your programme from our listing</string>
+    <string name="setup_course_help_dialog">You will find multiple listings for your course, you should select the one which corresponds to your current year of study.\nYou will be notified to reselect your programme when finished.</string>
+    <string name="title_activity_institution_select">Select university</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="ok">OK</string>
+
+</resources>
