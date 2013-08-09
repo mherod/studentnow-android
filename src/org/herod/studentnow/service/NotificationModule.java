@@ -27,7 +27,6 @@ public class NotificationModule implements ServiceModule {
 	@Override
 	public void cancel() {
 
-		
 	}
 
 	@Override
@@ -42,6 +41,11 @@ public class NotificationModule implements ServiceModule {
 
 	public void requestCardsRefresh() {
 		requestCardRefresh = true;
+	}
+
+	@Override
+	public boolean save() {
+		return true;
 	}
 
 }

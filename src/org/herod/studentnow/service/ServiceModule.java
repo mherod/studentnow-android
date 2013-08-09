@@ -9,5 +9,7 @@ public interface ServiceModule {
 	public abstract void cancel();
 	
 	public abstract void cycle();
+	
+	public abstract boolean save();
 
 }

@@ -9,7 +9,6 @@ import org.herod.studentnow.service.LocationCache.CachedLocation;
 import org.studentnow.Session;
 import org.studentnow._;
 
-import android.location.Location;
 import android.util.Log;
 
 public class TravelModule implements ServiceModule {
@@ -24,8 +23,6 @@ public class TravelModule implements ServiceModule {
 
 	@Override
 	public void load() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
@@ -36,8 +33,6 @@ public class TravelModule implements ServiceModule {
 
 	@Override
 	public void cancel() {
-		// TODO Auto-generated method stub
-
 	}
 
 	public void requestUpdate() {
@@ -102,5 +97,10 @@ public class TravelModule implements ServiceModule {
 
 		}
 
+	}
+
+	@Override
+	public boolean save() {
+		return true;
 	}
 }

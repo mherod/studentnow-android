@@ -77,18 +77,17 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 	@Override
 	public void cycle() {
-
+		CourseSelectionModule courseSelection = (CourseSelectionModule) liveService
+				.getServiceModule(CourseSelectionModule.class);
 		while ((requestTimetableUpdate || liveService.getTimetable() == null)
-				&& liveService.getCourseSelection() != null) {
-
+				&& courseSelection.getCourse() != null) {
+			
 			Log.i(TAG, "Querying timetable information...");
-
+			
 			long l = System.currentTimeMillis();
 
-			String programmeID = liveService.getCourseSelection()
-					.getProgrammeID();
-
-			Timetable t = TimetableQuery.query(programmeID, true);
+			Timetable t = TimetableQuery.query(courseSelection.getCourse()
+					.getProgrammeID(), true);
 
 			if (t != null) {
 				liveService.setTimetable(t);
@@ -116,6 +115,11 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 	public void requestTimetableUpdate() {
 		this.requestTimetableUpdate = true;
+	}
+
+	@Override
+	public boolean save() {
+		return true;
 	}
 
 }

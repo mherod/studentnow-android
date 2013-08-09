@@ -122,4 +122,9 @@ public class LocationModule extends BroadcastReceiver implements ServiceModule {
 
 	}
 
+	@Override
+	public boolean save() {
+		return true;		
+	}
+
 }

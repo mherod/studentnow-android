@@ -2,6 +2,7 @@ package org.herod.studentnow;
 
 import java.util.Locale;
 
+import org.herod.studentnow.service.CourseSelectionModule;
 import org.herod.studentnow.service.LiveService;
 import org.studentnow.Course;
 import org.studentnow.Institution;
@@ -82,7 +83,7 @@ public class SetupActivity extends FragmentActivity implements
 
 	@Override
 	public void onPageSelected(int arg0) {
-		invalidateOptionsMenu();
+		// invalidateOptionsMenu();
 	}
 
 	@Override
@@ -130,14 +131,14 @@ public class SetupActivity extends FragmentActivity implements
 	}
 
 	protected void openInstitutionSelection() {
-		Intent i = new Intent(this, InstitutionSelectActivity.class);
-		startActivityForResult(i, 5);
+		startActivityForResult(
+				new Intent(this, InstitutionSelectActivity.class), 5);
 	}
 
 	protected void openCourseSelection() {
-		Intent i = new Intent(this, CourseSelectActivity.class);
-		i.putExtra("inst", institutionSelection);
-		startActivityForResult(i, 6);
+		startActivityForResult(
+				new Intent(this, CourseSelectActivity.class).putExtra("inst",
+						institutionSelection), 6);
 	}
 
 	protected void finishSelections() {
@@ -145,9 +146,10 @@ public class SetupActivity extends FragmentActivity implements
 			mViewPager.setCurrentItem(0);
 			return;
 		}
-
-		live().setInstitutionSelection(institutionSelection);
-		live().setCourseSelection(courseSelection);
+		CourseSelectionModule csm = (CourseSelectionModule) live()
+				.getServiceModule(CourseSelectionModule.class);
+		csm.setInstitutionSelection(institutionSelection);
+		csm.setCourseSelection(courseSelection);
 
 		Intent i = new Intent(this, CardActivity.class);
 		startActivity(i);
@@ -336,19 +338,19 @@ public class SetupActivity extends FragmentActivity implements
 			return rootView;
 		}
 	}
-	
+
 	public static class CantFindDialogFragment extends DialogFragment {
-	    @Override
-	    public Dialog onCreateDialog(Bundle savedInstanceState) {
-	        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-	        builder.setMessage(R.string.cantfind)
-	               .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-	                   public void onClick(DialogInterface dialog, int id) {
-	                       dismiss();
-	                   }
-	               });
-	        return builder.create();
-	    }
+		@Override
+		public Dialog onCreateDialog(Bundle savedInstanceState) {
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setMessage(R.string.cantfind).setPositiveButton(
+					R.string.ok, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							dismiss();
+						}
+					});
+			return builder.create();
+		}
 	}
 
 }

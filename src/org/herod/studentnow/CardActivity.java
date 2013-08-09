@@ -1,5 +1,6 @@
 package org.herod.studentnow;
 
+import org.herod.studentnow.service.CourseSelectionModule;
 import org.herod.studentnow.service.LiveService;
 import org.herod.studentnow.service.TimetableSyncModule;
 import org.studentnow.Course;
@@ -15,11 +16,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -106,30 +105,7 @@ public class CardActivity extends Activity implements Runnable {
 
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent intent) {
-		Log.d("resutl2",
-				String.valueOf(requestCode) + " . "
-						+ String.valueOf(resultCode));
-
-		if (requestCode == 1) {
-
-			if (resultCode == RESULT_OK) {
-
-				String courseName = intent.getStringExtra(__.Save_CourseName);
-				String courseProgID = intent
-						.getStringExtra(__.Save_CourseProgID);
-
-				Course selection = new Course(courseName, courseProgID);
-
-				if (live() != null && selection != null) {
-					toast("Refreshing...");
-					live().setCourseSelection(selection);
-				}
-
-			} else if (resultCode == RESULT_CANCELED) {
-
-			}
-
-		} else if (requestCode == 10) {
+		if (requestCode == 10) {
 			finish();
 		}
 	}
@@ -155,7 +131,7 @@ public class CardActivity extends Activity implements Runnable {
 			return true;
 
 		case R.id.action_refresh:
-			((TimetableSyncModule) live().getServiceModule(
+			((TimetableSyncModule) getLiveService().getServiceModule(
 					TimetableSyncModule.class)).requestTimetableUpdate();
 			toast("Refreshing...");
 			return true;
@@ -193,17 +169,17 @@ public class CardActivity extends Activity implements Runnable {
 	}
 
 	private void updateCardsView() {
-
-		LiveService l = live();
-
 		boolean cards = false;
 
 		mCards.clearCards();
 		mCards.setSwipeable(false);
 
-		if (l != null) {
-
-			Course c = l.getCourseSelection();
+		LiveService l;
+		if ((l = getLiveService()) != null) {
+			CourseSelectionModule csm = (CourseSelectionModule) l
+					.getServiceModule(CourseSelectionModule.class);
+			
+			Course c = csm.getCourse();
 			Timetable tt = l.getTimetable();
 
 			if (c == null || tt == null) {
@@ -217,11 +193,9 @@ public class CardActivity extends Activity implements Runnable {
 				case _.STATUS_PROGRAMME_ENDED:
 					mCards.addCard(new MyCard(getString(R.string.week) + " "
 							+ tt.getWeek(), getString(R.string.card_over_desc)));
-
 					mCards.addCard(new MyCard("Your programme",
 							"Your current programme selection for this year is "
 									+ c.getName()));
-
 					mCards.addCard(new MyCard(
 							getString(R.string.card_examreminder_title),
 							getString(R.string.card_examreminder_desc)));
@@ -317,7 +291,7 @@ public class CardActivity extends Activity implements Runnable {
 
 	}
 
-	private LiveService live() {
+	private LiveService getLiveService() {
 		return serviceLink.getLiveService();
 	}
 
@@ -325,12 +299,17 @@ public class CardActivity extends Activity implements Runnable {
 
 		@Override
 		public void run() {
-			if (live() == null) {
+			LiveService l;
+			if ((l = getLiveService()) == null) {
 				updateCardsFlag = true;
-			} else if (live().getCourseSelection() == null) {
-				openSetupWizard();
 			} else {
-				updateCardsView();
+				CourseSelectionModule csm = (CourseSelectionModule) l
+						.getServiceModule(CourseSelectionModule.class);
+				if (csm.isCourseSelected()) {
+					updateCardsView();
+				} else {
+					openSetupWizard();
+				}
 			}
 		}
 
