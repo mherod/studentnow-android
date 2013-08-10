@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.herod.studentnow.ObjectFiles;
 import org.studentnow.Course;
 import org.studentnow.Institution;
+import org.studentnow.api.InstitutionsQuery;
 
 import android.util.Log;
 
@@ -23,17 +24,22 @@ public class CourseSelectionModule implements ServiceModule {
 	private Institution institutionSelection = null;
 	private Course courseSelection = null;
 
+	final int dataExpiry = 1000 * 60 * 60 * 12;
+
 	public CourseSelectionModule(LiveService liveService) {
 		this.service = liveService;
 	}
 
+	private String getFolder() {
+		return service.getFilesDir() + File.separator;
+	}
+
 	@Override
 	public void load() {
-		final String folder = service.getFilesDir() + File.separator;
 		try {
-			institutionSelection = (Institution) ObjectFiles.readObject(folder
-					+ institutionSelectionFile);
-			courseSelection = (Course) ObjectFiles.readObject(folder
+			institutionSelection = (Institution) ObjectFiles
+					.readObject(getFolder() + institutionSelectionFile);
+			courseSelection = (Course) ObjectFiles.readObject(getFolder()
 					+ courseSelectionFile);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -53,6 +59,13 @@ public class CourseSelectionModule implements ServiceModule {
 
 	@Override
 	public void cycle() {
+		if (institutionSelection != null) {
+			if (System.currentTimeMillis()
+					- institutionSelection.getTimeCreated() > dataExpiry) {
+				institutionSelection = InstitutionsQuery
+						.renew(institutionSelection);
+			}
+		}
 		if (courseSelection != null) {
 			while (requestCourseSelectionSave) {
 				Log.i(TAG, "Saving new course selection...");
@@ -93,10 +106,11 @@ public class CourseSelectionModule implements ServiceModule {
 	@Override
 	public boolean save() {
 		if (isCourseSelected()) {
-			final String folder = service.getFilesDir() + File.separator;
 			try {
-				ObjectFiles.saveObject(institutionSelection, folder + institutionSelectionFile);
-				ObjectFiles.saveObject(courseSelection, folder + courseSelectionFile);
+				ObjectFiles.saveObject(institutionSelection, getFolder()
+						+ institutionSelectionFile);
+				ObjectFiles.saveObject(courseSelection, getFolder()
+						+ courseSelectionFile);
 			} catch (IOException e) {
 				return false;
 			}

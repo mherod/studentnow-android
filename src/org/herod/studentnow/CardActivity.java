@@ -65,28 +65,19 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	public void onResume() {
-		super.onResume();
-
+		super.onResume();		
 		serviceLink.start(this);
-
-		IntentFilter cardUpdateFilter = new IntentFilter(__.Intent_CardUpdate);
-		registerReceiver(cardUpdateReceiver, cardUpdateFilter);
-
+		registerReceiver(cardUpdateReceiver, new IntentFilter(__.Intent_CardUpdate));
 		updateCardsFlag = true;
-
 		try {
 			thread.start();
 		} catch (RuntimeException re) {
-
 		}
-
 	}
 
 	@Override
 	protected void onPause() {
-
 		unregisterReceiver(cardUpdateReceiver);
-
 		super.onPause();
 	}
 
@@ -98,9 +89,7 @@ public class CardActivity extends Activity implements Runnable {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-
 		serviceLink.stop(this);
-
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode,
@@ -149,7 +138,6 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	public void run() {
-
 		while (true) {
 			if (updateCardsFlag) {
 				updateCardsFlag = false;
@@ -160,7 +148,6 @@ public class CardActivity extends Activity implements Runnable {
 			} catch (Exception e) {
 			}
 		}
-
 	}
 
 	private void openSetupWizard() {
