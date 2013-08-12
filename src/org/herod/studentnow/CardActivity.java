@@ -1,5 +1,6 @@
 package org.herod.studentnow;
 
+import org.herod.studentnow.service.CardViewBuildModule;
 import org.herod.studentnow.service.CourseSelectionModule;
 import org.herod.studentnow.service.LiveService;
 import org.herod.studentnow.service.TimetableSyncModule;
@@ -65,9 +66,10 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	public void onResume() {
-		super.onResume();		
+		super.onResume();
 		serviceLink.start(this);
-		registerReceiver(cardUpdateReceiver, new IntentFilter(__.Intent_CardUpdate));
+		registerReceiver(cardUpdateReceiver, new IntentFilter(
+				__.Intent_CardUpdate));
 		updateCardsFlag = true;
 		try {
 			thread.start();
@@ -155,127 +157,19 @@ public class CardActivity extends Activity implements Runnable {
 		startActivityForResult(intent, 10);
 	}
 
-	private void updateCardsView() {
-		boolean cards = false;
-
-		mCards.clearCards();
-		mCards.setSwipeable(false);
-
+	private boolean updateCardsView() {
 		LiveService l;
-		if ((l = getLiveService()) != null) {
-			CourseSelectionModule csm = (CourseSelectionModule) l
-					.getServiceModule(CourseSelectionModule.class);
-			
-			Course c = csm.getCourse();
-			Timetable tt = l.getTimetable();
-
-			if (c == null || tt == null) {
-				cards = false;
-			} else {
-
-				cards = true;
-
-				switch (tt.getStatus()) {
-
-				case _.STATUS_PROGRAMME_ENDED:
-					mCards.addCard(new MyCard(getString(R.string.week) + " "
-							+ tt.getWeek(), getString(R.string.card_over_desc)));
-					mCards.addCard(new MyCard("Your programme",
-							"Your current programme selection for this year is "
-									+ c.getName()));
-					mCards.addCard(new MyCard(
-							getString(R.string.card_examreminder_title),
-							getString(R.string.card_examreminder_desc)));
-					break;
-
-				case _.STATUS_WEEK_ENDED:
-					mCards.addCard(new MyCard(getString(R.string.week) + " "
-							+ tt.getWeek(),
-							getString(R.string.card_weekover_desc)));
-					break;
-
-				case _.STATUS_DAY_ENDED:
-					Session nextSession = tt.getNextSession();
-					String continues = "next";
-					if (nextSession == null) {
-						continues = "later this week";
-					} else if (nextSession.isTomorrow()) {
-						continues = "tomorrow";
-					} else {
-						continues = "on " + nextSession.get(_.FIELD_DAY);
-					}
-
-					mCards.addCard(new MyCard(getString(R.string.week) + " "
-							+ tt.getWeek(), getString(R.string.week_later)
-							+ " " + continues + "."));
-
-					int k = 0;
-					String upcoming = "";
-					for (Session session : tt.getSessions()) {
-						if (session.hasPassed())
-							continue;
-						if (k++ == 3)
-							break;
-						upcoming += session.get(_.FIELD_DAY) + " "
-								+ session.get(_.FIELD_TIME_START) + " - "
-								+ session.get(_.FIELD_MODULE) + _.nl;
-					}
-					if (nextSession != null && upcoming.length() > 0) {
-						// getString(R.string.next)
-						String continuesTitle = StringUtils
-								.capitalize(continues)
-								+ " from "
-								+ nextSession.get(_.FIELD_TIME_START);
-						mCards.addCard(new MyCard(continuesTitle, upcoming));
-					}
-					break;
-
-				case _.STATUS_LIVE:
-					mCards.addCard(new MyCard(getString(R.string.week) + " "
-							+ tt.getWeek(), getString(R.string.week_desc)));
-
-					MyCard newCard;
-					for (Session session : tt.getSessions()) {
-						if (session.hasPassed())
-							continue;
-
-						String travel = "";
-						if (session.isWithinTravel()) {
-							if (session.isSet("travel-duration")) {
-								int mins = session.getInt("travel-duration") / 60;
-								travel += ",\ntravel time ~ " + mins + " mins";
-							}
-						} else {
-							travel += ",\nyou may not arrive in time";
-						}
-
-						newCard = new MyCard(session.get(_.FIELD_TYPE) + " at "
-								+ session.get(_.FIELD_TIME_START) + travel,
-								session.get(_.FIELD_MODULE) + " in "
-										+ session.get(_.FIELD_ROOM_NAME));
-
-						mCards.addCard(newCard);
-
-					}
-					break;
-
-				default:
-					mCards.addCard(new MyCard(
-							getString(R.string.card_timetableerror_title),
-							getString(R.string.card_timetableerror_desc)));
-					break;
-
-				}
-			}
+		if ((l = getLiveService()) == null) {
+			return false;
 		}
-
+		CardViewBuildModule cvbm = (CardViewBuildModule) l
+				.getServiceModule(CardViewBuildModule.class);
+		if (cvbm == null) {
+			return false;
+		}
+		boolean cards = cvbm.renderCardsView(mCards);
 		runOnUiThread(cards ? showCards : showProgress);
-
-		mCards.setSwipeable(true);
-		mCards.refresh();
-
-		updateCardsFlag = !cards;
-
+		return cards;
 	}
 
 	private LiveService getLiveService() {
@@ -293,7 +187,7 @@ public class CardActivity extends Activity implements Runnable {
 				CourseSelectionModule csm = (CourseSelectionModule) l
 						.getServiceModule(CourseSelectionModule.class);
 				if (csm.isCourseSelected()) {
-					updateCardsView();
+					updateCardsFlag = !updateCardsView();
 				} else {
 					openSetupWizard();
 				}
