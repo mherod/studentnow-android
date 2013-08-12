@@ -55,8 +55,8 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DAY_OF_MONTH, 1);
-		c.set(Calendar.HOUR_OF_DAY, 1);
-		c.set(Calendar.MINUTE, 15 + randomGenerator.nextInt(30));
+		c.set(Calendar.HOUR_OF_DAY, 0);
+		c.set(Calendar.MINUTE, randomGenerator.nextInt(5));
 		c.set(Calendar.SECOND, 0);
 		c.set(Calendar.MILLISECOND, 0);
 

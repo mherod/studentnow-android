@@ -75,7 +75,7 @@ public class CardViewBuildModule implements ServiceModule {
 		if (c == null || tt == null) {
 			return false;
 		}
-		switch (tt.getStatus()) {
+		switch (tt.refreshStatus().getStatus()) {
 
 		case _.STATUS_PROGRAMME_ENDED:
 			cardsView.addCard(new MyCard(l.getString(R.string.week) + " "
@@ -139,12 +139,12 @@ public class CardViewBuildModule implements ServiceModule {
 
 				String travel = "";
 				if (session.isWithinTravel()) {
-					if (session.isSet("travel-duration")) {
-						int mins = session.getInt("travel-duration") / 60;
+					if (session.isSet(_.FIELD_TRAVEL_DURATION)) {
+						int mins = session.getInt(_.FIELD_TRAVEL_DURATION) / 60;
 						travel += ",\ntravel time ~ " + mins + " mins";
 					}
 				} else {
-					travel += ",\nyou may not arrive in time";
+					//travel += ",\nyou may not arrive in time";
 				}
 
 				newCard = new MyCard(session.get(_.FIELD_TYPE) + " at "

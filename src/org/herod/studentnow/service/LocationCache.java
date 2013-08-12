@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.location.Location;
+import android.util.Log;
 
 public class LocationCache extends SQLiteOpenHelper {
 
@@ -124,18 +125,13 @@ public class LocationCache extends SQLiteOpenHelper {
 		Cursor cursor = db.rawQuery(selectQuery, null);
 
 		if (cursor.moveToFirst()) {
-
-			do {
-
-				loc.setTime(cursor.getLong(0));
-				loc.setProvider(cursor.getString(1));
-				loc.setLat(cursor.getDouble(2));
-				loc.setLng(cursor.getDouble(3));
-
-			} while (cursor.moveToNext());
+			loc.setTime(cursor.getLong(0));
+			loc.setProvider(cursor.getString(1));
+			loc.setLat(cursor.getDouble(2));
+			loc.setLng(cursor.getDouble(3));
+			return loc;
 		}
-
-		return loc;
+		return null;
 	}
 
 	public void storeLocation(Location loc) {

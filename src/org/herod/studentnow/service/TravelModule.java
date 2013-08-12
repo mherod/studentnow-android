@@ -74,14 +74,12 @@ public class TravelModule implements ServiceModule {
 				long a = nextSession.getStartTime().getTimeAsDate().getTime();
 				// directionURL.addParam("arrival_time", String.valueOf(a));
 				try {
-					Log.d("ss", "tryin to poll");
 					Directions directions = Directions.fetch(directionURL);
 					Route route = directions.getRoutes().get(0);
 					for (Leg leg : route.getLegs()) {
 						long durationSecs = leg.getDurationSecs();
-						long durationMins = durationSecs / 60;
 						nextSession.set(_.FIELD_TRAVEL_DURATION,
-								String.valueOf(durationMins));
+								String.valueOf(durationSecs));
 						Log.d("loc", "Duration: " + leg.getDurationSecs());
 						Log.d("loc", "Depart: " + leg.getStartAddress());
 						Log.d("loc", "Arrive: " + leg.getEndAddress());

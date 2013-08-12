@@ -34,9 +34,9 @@ public class LiveService extends Service implements Runnable {
 		modules.add(new CourseSelectionModule(this));
 		modules.add(new TimetableSyncModule(this));
 		modules.add(new LocationModule(this));
-		// modules.add(new TravelModule(this));
-		modules.add(new NotificationModule(this));
+		modules.add(new TravelModule(this));
 		modules.add(new CardViewBuildModule(this));
+		modules.add(new NotificationModule(this));
 
 		for (ServiceModule m : modules) {
 			m.load();
