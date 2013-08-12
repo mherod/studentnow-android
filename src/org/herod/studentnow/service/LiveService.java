@@ -36,6 +36,7 @@ public class LiveService extends Service implements Runnable {
 		modules.add(new LocationModule(this));
 		// modules.add(new TravelModule(this));
 		modules.add(new NotificationModule(this));
+		modules.add(new CardViewBuildModule(this));
 
 		for (ServiceModule m : modules) {
 			m.load();
@@ -70,19 +71,18 @@ public class LiveService extends Service implements Runnable {
 		return modules;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public <T> T getServiceModule(Class c) {
+	/*
+	 * @SuppressWarnings({ "unchecked", "rawtypes" }) public <T> T
+	 * getServiceModule(Class c) { for (ServiceModule m : modules) if
+	 * (m.getClass().equals(c)) return (T) m; return null; }
+	 */
+
+	public ServiceModule getServiceModule(@SuppressWarnings("rawtypes") Class c) {
 		for (ServiceModule m : modules)
 			if (m.getClass().equals(c))
-				return (T) m;
+				return m;
 		return null;
 	}
-
-	/*
-	 * public ServiceModule getServiceModule(@SuppressWarnings("rawtypes") Class
-	 * c) { for (ServiceModule m : modules) { if (m.getClass().equals(c)) {
-	 * return m; } } return null; }
-	 */
 
 	public Timetable getTimetable() {
 		return timetable;

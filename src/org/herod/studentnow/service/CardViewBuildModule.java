@@ -5,12 +5,16 @@ import org.studentnow.Session;
 import org.studentnow.Timetable;
 import org.studentnow._;
 
+import android.util.Log;
+
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.MyCard;
 import com.studentnow.android.R;
 import com.studentnow.android.StringUtils;
 
 public class CardViewBuildModule implements ServiceModule {
+
+	private final String TAG = LiveService.class.getName();
 
 	private final LiveService mLiveService;
 
@@ -111,9 +115,10 @@ public class CardViewBuildModule implements ServiceModule {
 					continue;
 				if (k++ == 3)
 					break;
-				upcoming += session.get(_.FIELD_DAY) + " "
+				Log.d(TAG, session.get(_.FIELD_DAY));
+				upcoming += (session.get(_.FIELD_DAY) + " "
 						+ session.get(_.FIELD_TIME_START) + " - "
-						+ session.get(_.FIELD_MODULE) + _.nl;
+						+ session.get(_.FIELD_MODULE) + _.nl);
 			}
 			if (nextSession != null && upcoming.length() > 0) {
 				// getString(R.string.next)
@@ -162,7 +167,7 @@ public class CardViewBuildModule implements ServiceModule {
 
 		cardsView.setSwipeable(true);
 		cardsView.refresh();
-		
+
 		return true;
 	}
 }

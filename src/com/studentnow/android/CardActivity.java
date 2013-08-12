@@ -23,6 +23,8 @@ import com.fima.cardsui.views.CardUI;
 
 public class CardActivity extends Activity implements Runnable {
 
+	private final String TAG = CardActivity.class.getName();
+
 	private View mContentView;
 	private CardUI mCards;
 	private ProgressBar mLoadingView;
@@ -146,9 +148,6 @@ public class CardActivity extends Activity implements Runnable {
 		}
 		CardViewBuildModule cvbm = (CardViewBuildModule) l
 				.getServiceModule(CardViewBuildModule.class);
-		if (cvbm == null) {
-			return false;
-		}
 		boolean cards = cvbm.renderCardsView(mCards);
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
@@ -181,7 +180,7 @@ public class CardActivity extends Activity implements Runnable {
 				updateCardsFlag = true;
 				return;
 			}
-			CourseSelectionModule csm = l
+			CourseSelectionModule csm = (CourseSelectionModule) l
 					.getServiceModule(CourseSelectionModule.class);
 			if (csm.isCourseSelected()) {
 				updateCardsFlag = !updateCardsView();

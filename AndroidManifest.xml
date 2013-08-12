@@ -61,7 +61,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.herod.studentnow.CardActivity" />
         </activity>
-        
         <activity
             android:name="com.studentnow.android.SetupActivity"
             android:label="@string/title_activity_setup_programme"
@@ -75,8 +74,8 @@
         <activity
             android:name="com.studentnow.android.InstitutionSelectActivity"
             android:label="@string/title_activity_institution_select"
-            android:parentActivityName="com.studentnow.android.SetupActivity" 
-            android:theme="@style/FullHeightDialog">
+            android:parentActivityName="com.studentnow.android.SetupActivity"
+            android:theme="@style/FullHeightDialog" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.herod.studentnow.SetupActivity" />
@@ -107,7 +106,6 @@
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
-        
     </application>
 
 </manifest>
