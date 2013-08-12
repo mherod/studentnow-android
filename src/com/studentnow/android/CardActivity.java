@@ -1,13 +1,9 @@
-package org.herod.studentnow;
+package com.studentnow.android;
 
 import org.herod.studentnow.service.CardViewBuildModule;
 import org.herod.studentnow.service.CourseSelectionModule;
 import org.herod.studentnow.service.LiveService;
 import org.herod.studentnow.service.TimetableSyncModule;
-import org.studentnow.Course;
-import org.studentnow.Session;
-import org.studentnow.Timetable;
-import org.studentnow._;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -138,20 +134,6 @@ public class CardActivity extends Activity implements Runnable {
 		}
 	}
 
-	@Override
-	public void run() {
-		while (true) {
-			if (updateCardsFlag) {
-				updateCardsFlag = false;
-				runOnUiThread(updateCardsRunnable);
-			}
-			try {
-				Thread.sleep(250);
-			} catch (Exception e) {
-			}
-		}
-	}
-
 	private void openSetupWizard() {
 		Intent intent = new Intent(this, SetupActivity.class);
 		startActivityForResult(intent, 10);
@@ -176,6 +158,20 @@ public class CardActivity extends Activity implements Runnable {
 		return serviceLink.getLiveService();
 	}
 
+	@Override
+	public void run() {
+		while (true) {
+			if (updateCardsFlag) {
+				updateCardsFlag = false;
+				runOnUiThread(updateCardsRunnable);
+			}
+			try {
+				Thread.sleep(250);
+			} catch (Exception e) {
+			}
+		}
+	}
+
 	private Runnable updateCardsRunnable = new Runnable() {
 
 		@Override
@@ -183,14 +179,14 @@ public class CardActivity extends Activity implements Runnable {
 			LiveService l;
 			if ((l = getLiveService()) == null) {
 				updateCardsFlag = true;
+				return;
+			}
+			CourseSelectionModule csm = l
+					.getServiceModule(CourseSelectionModule.class);
+			if (csm.isCourseSelected()) {
+				updateCardsFlag = !updateCardsView();
 			} else {
-				CourseSelectionModule csm = (CourseSelectionModule) l
-						.getServiceModule(CourseSelectionModule.class);
-				if (csm.isCourseSelected()) {
-					updateCardsFlag = !updateCardsView();
-				} else {
-					openSetupWizard();
-				}
+				openSetupWizard();
 			}
 		}
 

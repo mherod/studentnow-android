@@ -1,6 +1,6 @@
 package org.herod.studentnow.service;
 
-import org.herod.studentnow.__;
+import com.studentnow.android.__;
 
 import android.content.Intent;
 

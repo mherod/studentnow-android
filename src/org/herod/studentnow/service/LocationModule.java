@@ -4,7 +4,7 @@ import herod.android.LocationHandler;
 
 import java.util.Calendar;
 
-import org.herod.studentnow.__;
+import com.studentnow.android.__;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

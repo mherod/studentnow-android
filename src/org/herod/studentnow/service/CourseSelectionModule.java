@@ -3,10 +3,11 @@ package org.herod.studentnow.service;
 import java.io.File;
 import java.io.IOException;
 
-import org.herod.studentnow.ObjectFiles;
 import org.studentnow.Course;
 import org.studentnow.Institution;
 import org.studentnow.api.InstitutionsQuery;
+
+import com.studentnow.android.ObjectFiles;
 
 import android.util.Log;
 

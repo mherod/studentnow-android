@@ -3,9 +3,10 @@ package org.herod.studentnow.service;
 import java.util.Calendar;
 import java.util.Random;
 
-import org.herod.studentnow.__;
 import org.studentnow.Timetable;
 import org.studentnow.api.TimetableQuery;
+
+import com.studentnow.android.__;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

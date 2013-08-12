@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.herod.studentnow"
-    android:versionCode="12"
-    android:versionName="0.2.12" >
+    package="com.studentnow.android"
+    android:versionCode="1"
+    android:versionName="0.0.1" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="org.herod.studentnow.CardActivity"
+            android:name="com.studentnow.android.CardActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:logo="@drawable/ic_launcher2"
@@ -35,57 +35,57 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.herod.studentnow.SettingsActivity"
+            android:name="com.studentnow.android.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:logo="@drawable/ic_launcher2"
-            android:parentActivityName="org.herod.studentnow.CardActivity" >
+            android:parentActivityName="com.studentnow.android.CardActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.herod.studentnow.CardActivity" />
         </activity>
         <activity
-            android:name="org.herod.studentnow.CreditActivity"
+            android:name="com.studentnow.android.CreditActivity"
             android:label="@string/title_activity_credit"
             android:logo="@drawable/ic_launcher2"
-            android:parentActivityName="org.herod.studentnow.CardActivity" >
+            android:parentActivityName="com.studentnow.android.CardActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.herod.studentnow.CardActivity" />
         </activity>
         <activity
-            android:name="org.herod.studentnow.SessionActivity"
+            android:name="com.studentnow.android.SessionActivity"
             android:label="@string/title_activity_session"
             android:logo="@drawable/ic_launcher2"
-            android:parentActivityName="org.herod.studentnow.CardActivity" >
+            android:parentActivityName="com.studentnow.android.CardActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.herod.studentnow.CardActivity" />
         </activity>
         
         <activity
-            android:name="org.herod.studentnow.SetupActivity"
+            android:name="com.studentnow.android.SetupActivity"
             android:label="@string/title_activity_setup_programme"
             android:launchMode="singleTask"
             android:logo="@drawable/ic_launcher2"
-            android:parentActivityName="org.herod.studentnow.CardActivity" >
+            android:parentActivityName="com.studentnow.android.CardActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.herod.studentnow.CardActivity" />
         </activity>
         <activity
-            android:name="org.herod.studentnow.InstitutionSelectActivity"
+            android:name="com.studentnow.android.InstitutionSelectActivity"
             android:label="@string/title_activity_institution_select"
-            android:parentActivityName="org.herod.studentnow.SetupActivity" 
+            android:parentActivityName="com.studentnow.android.SetupActivity" 
             android:theme="@style/FullHeightDialog">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.herod.studentnow.SetupActivity" />
         </activity>
         <activity
-            android:name="org.herod.studentnow.CourseSelectActivity"
+            android:name="com.studentnow.android.CourseSelectActivity"
             android:label="@string/title_activity_course_search"
             android:logo="@drawable/ic_launcher2"
-            android:parentActivityName="org.herod.studentnow.CardActivity" >
+            android:parentActivityName="com.studentnow.android.CardActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.hacksoc.studentnow.CardActivity" />
@@ -98,7 +98,7 @@
         </service>
 
         <receiver
-            android:name="org.herod.studentnow.LiveServiceStartReceiver"
+            android:name="com.studentnow.android.LiveServiceStartReceiver"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />

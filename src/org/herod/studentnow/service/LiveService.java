@@ -1,6 +1,5 @@
 package org.herod.studentnow.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,14 +70,19 @@ public class LiveService extends Service implements Runnable {
 		return modules;
 	}
 
-	public ServiceModule getServiceModule(@SuppressWarnings("rawtypes") Class c) {
-		for (ServiceModule m : modules) {
-			if (m.getClass().equals(c)) {
-				return m;
-			}
-		}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T> T getServiceModule(Class c) {
+		for (ServiceModule m : modules)
+			if (m.getClass().equals(c))
+				return (T) m;
 		return null;
 	}
+
+	/*
+	 * public ServiceModule getServiceModule(@SuppressWarnings("rawtypes") Class
+	 * c) { for (ServiceModule m : modules) { if (m.getClass().equals(c)) {
+	 * return m; } } return null; }
+	 */
 
 	public Timetable getTimetable() {
 		return timetable;

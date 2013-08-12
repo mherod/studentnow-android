@@ -1,4 +1,4 @@
-package org.herod.studentnow;
+package com.studentnow.android;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;

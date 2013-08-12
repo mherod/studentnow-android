@@ -1,14 +1,14 @@
 package org.herod.studentnow.service;
 
-import org.herod.studentnow.MyCard;
-import org.herod.studentnow.R;
-import org.herod.studentnow.StringUtils;
 import org.studentnow.Course;
 import org.studentnow.Session;
 import org.studentnow.Timetable;
 import org.studentnow._;
 
 import com.fima.cardsui.views.CardUI;
+import com.studentnow.android.MyCard;
+import com.studentnow.android.R;
+import com.studentnow.android.StringUtils;
 
 public class CardViewBuildModule implements ServiceModule {
 
