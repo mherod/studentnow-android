@@ -144,7 +144,7 @@ public class CardViewBuildModule implements ServiceModule {
 						travel += ",\ntravel time ~ " + mins + " mins";
 					}
 				} else {
-					//travel += ",\nyou may not arrive in time";
+					// travel += ",\nyou may not arrive in time";
 				}
 
 				newCard = new MyCard(session.get(_.FIELD_TYPE) + " at "

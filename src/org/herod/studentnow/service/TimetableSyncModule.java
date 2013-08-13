@@ -21,9 +21,9 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 	private final String TAG = this.getClass().getName();
 
-	private AlarmManager am;
-
 	private LiveService liveService;
+
+	private AlarmManager am;
 
 	private PendingIntent partDailyIntent;
 	private PendingIntent fullDailyIntent;

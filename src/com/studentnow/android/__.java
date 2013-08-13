@@ -14,6 +14,8 @@ public class __ {
 
 	public static final String Intent_CardUpdate = "studentnow.cardupdate";
 
+	public static final String Intent_Notification = "studentnow.notification";
+
 	public static final String Intent_ProgrammeUpdate = "studentnow.programmeupdate";
 
 	public static final String Intent_HomeLocPoll = "studentnow.homelocpoll";
