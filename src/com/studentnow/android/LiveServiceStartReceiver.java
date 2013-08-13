@@ -1,10 +1,10 @@
 package com.studentnow.android;
 
-import org.herod.studentnow.service.LiveService;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.studentnow.android.service.LiveService;
 
 public class LiveServiceStartReceiver extends BroadcastReceiver {
 

@@ -1,4 +1,4 @@
-package org.herod.studentnow.service;
+package com.studentnow.android.service;
 
 import java.io.File;
 import java.io.IOException;

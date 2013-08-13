@@ -2,8 +2,6 @@ package com.studentnow.android;
 
 import java.util.Locale;
 
-import org.herod.studentnow.service.CourseSelectionModule;
-import org.herod.studentnow.service.LiveService;
 import org.studentnow.Course;
 import org.studentnow.Institution;
 
@@ -28,6 +26,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.fima.cardsui.views.CardUI;
+import com.studentnow.android.service.CourseSelectionModule;
+import com.studentnow.android.service.LiveService;
 
 public class SetupActivity extends FragmentActivity implements
 		ViewPager.OnPageChangeListener {

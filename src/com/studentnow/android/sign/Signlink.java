@@ -1,4 +1,4 @@
-package org.herod.studentnow.sign;
+package com.studentnow.android.sign;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

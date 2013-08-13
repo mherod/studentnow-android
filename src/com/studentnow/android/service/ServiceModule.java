@@ -1,4 +1,4 @@
-package org.herod.studentnow.service;
+package com.studentnow.android.service;
 
 public interface ServiceModule {
 	

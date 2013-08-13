@@ -1,10 +1,5 @@
 package com.studentnow.android;
 
-import org.herod.studentnow.service.CardViewBuildModule;
-import org.herod.studentnow.service.CourseSelectionModule;
-import org.herod.studentnow.service.LiveService;
-import org.herod.studentnow.service.TimetableSyncModule;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
@@ -20,6 +15,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.fima.cardsui.views.CardUI;
+import com.studentnow.android.service.CardViewBuildModule;
+import com.studentnow.android.service.CourseSelectionModule;
+import com.studentnow.android.service.LiveService;
+import com.studentnow.android.service.TimetableSyncModule;
 
 public class CardActivity extends Activity implements Runnable {
 

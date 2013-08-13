@@ -1,13 +1,13 @@
 package com.studentnow.android;
 
-import org.herod.studentnow.service.LiveService;
-
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.studentnow.android.service.LiveService;
 
 public class LiveServiceLink implements ServiceConnection {
 
