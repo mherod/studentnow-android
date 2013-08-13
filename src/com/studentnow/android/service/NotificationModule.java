@@ -51,6 +51,10 @@ public class NotificationModule extends BroadcastReceiver implements
 	public void schedule() {
 		liveService.registerReceiver(this, new IntentFilter(
 				__.Intent_Notification));
+		
+		if (liveService.getTimetable() == null) {
+			return;
+		}
 
 		Session nextSession = liveService.getTimetable().getNextSession();
 

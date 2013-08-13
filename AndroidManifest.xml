@@ -91,7 +91,7 @@
         </activity>
 
         <service
-            android:name="org.herod.studentnow.service.LiveService"
+            android:name="com.studentnow.android.service.LiveService"
             android:enabled="true"
             android:exported="false" >
         </service>
