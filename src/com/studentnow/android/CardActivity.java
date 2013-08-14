@@ -121,7 +121,7 @@ public class CardActivity extends Activity implements Runnable {
 
 		case R.id.action_refresh:
 			((TimetableSyncModule) getLiveService().getServiceModule(
-					TimetableSyncModule.class)).requestTimetableUpdate();
+					TimetableSyncModule.class)).requestUpdate();
 			toast("Refreshing...");
 			return true;
 
@@ -224,8 +224,7 @@ public class CardActivity extends Activity implements Runnable {
 	private void toast(String s) {
 		//Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
 		
-		Crouton.makeText(this, s, Style.INFO).show();
-		
+		Crouton.makeText(this, s, Style.INFO).show();		
 	}
 
 }

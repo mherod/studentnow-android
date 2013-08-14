@@ -12,6 +12,7 @@ import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.MyCard;
 import com.studentnow.android.R;
 import com.studentnow.android.StringUtils;
+import com.studentnow.android.service.TravelModule.TravelInformation;
 
 public class CardViewBuildModule implements ServiceModule {
 
@@ -69,6 +70,7 @@ public class CardViewBuildModule implements ServiceModule {
 		LiveService l = mLiveService;
 		CourseSelectionModule csm = (CourseSelectionModule) l
 				.getServiceModule(CourseSelectionModule.class);
+		TravelModule tm = (TravelModule) l.getServiceModule(TravelModule.class);
 
 		Course c = csm.getCourse();
 		Timetable tt = l.getTimetable();
@@ -108,6 +110,15 @@ public class CardViewBuildModule implements ServiceModule {
 			cardsView.addCard(new MyCard(l.getString(R.string.week) + " "
 					+ tt.getWeek(), l.getString(R.string.week_later) + " "
 					+ continues + "."));
+			
+			TravelInformation travelInfo2 = tm.getTravelInformation();
+			if (travelInfo2 != null) {
+				cardsView.addCard(new MyCard(travelInfo2.getDurationMins()
+						+ " mins to " + travelInfo2.getEndAddressShort(),
+						"Leave by " + travelInfo2.getDepartTime()
+								+ " and you will arrive by "
+								+ travelInfo2.getArriveTime()));
+			}
 
 			int k = 0;
 			String upcoming = "";
@@ -133,29 +144,40 @@ public class CardViewBuildModule implements ServiceModule {
 			cardsView.addCard(new MyCard(l.getString(R.string.week) + " "
 					+ tt.getWeek(), l.getString(R.string.week_desc)));
 
+			boolean travelCardFlag = false;
+
 			Time lastTime = null;
 			MyCard newCard;
+
+			Session nextSession2 = tt.getNextSession();
 			for (Session session : tt.getSessions()) {
 				if (session.hasPassed())
 					continue;
 
-				String travel = "";
-				if (session.isWithinTravel()) {
-					if (session.isSet(_.FIELD_TRAVEL_DURATION)) {
-						int mins = session.getInt(_.FIELD_TRAVEL_DURATION) / 60;
-						travel += ",\ntravel time ~ " + mins + " mins";
+				if (!travelCardFlag && session == nextSession2
+						&& !session.isNow()) {
+					travelCardFlag = true;
+					TravelInformation travelInfo = tm.getTravelInformation();
+					if (travelInfo != null) {
+						newCard = new MyCard(travelInfo.getDurationMins()
+								+ " to " + travelInfo.getEndAddressShort(),
+								"Leave by " + travelInfo.getDepartTime()
+										+ " and you will arrive by "
+										+ travelInfo.getArriveTime());
+						cardsView.addCard(newCard);
 					}
 				}
 
 				newCard = new MyCard(session.get(_.FIELD_TYPE) + " at "
-						+ session.get(_.FIELD_TIME_START) + travel,
+						+ session.get(_.FIELD_TIME_START),
 						session.get(_.FIELD_MODULE) + " in "
 								+ session.get(_.FIELD_ROOM_NAME));
-				
-				if (lastTime != null && session.getStartTime().compareTo(lastTime) == 0) {
-					cardsView.addCardToLastStack(newCard);					
+
+				if (lastTime != null
+						&& session.getStartTime().compareTo(lastTime) == 0) {
+					cardsView.addCardToLastStack(newCard);
 				} else {
-					cardsView.addCard(newCard);					
+					cardsView.addCard(newCard);
 				}
 				lastTime = session.getStartTime();
 			}

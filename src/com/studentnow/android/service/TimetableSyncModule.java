@@ -108,13 +108,13 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 	@Override
 	public void onReceive(Context c, Intent i) {
-		requestTimetableUpdate();
+		requestUpdate();
 
 		((LocationModule) liveService.getServiceModule(LocationModule.class))
 				.requestLocationUpdate(true);
 	}
 
-	public void requestTimetableUpdate() {
+	public void requestUpdate() {
 		this.requestTimetableUpdate = true;
 	}
 

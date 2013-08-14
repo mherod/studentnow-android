@@ -50,6 +50,21 @@ public class CourseSelectionModule implements ServiceModule {
 	}
 
 	@Override
+	public boolean save() {
+		if (isCourseSelected()) {
+			try {
+				ObjectFiles.saveObject(institutionSelection, getFolder()
+						+ institutionSelectionFile);
+				ObjectFiles.saveObject(courseSelection, getFolder()
+						+ courseSelectionFile);
+			} catch (IOException e) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	@Override
 	public void schedule() {
 	}
 
@@ -65,6 +80,7 @@ public class CourseSelectionModule implements ServiceModule {
 					- institutionSelection.getTimeCreated() > dataExpiry) {
 				institutionSelection = InstitutionsQuery
 						.renew(institutionSelection);
+				requestCourseSelectionSave = true;
 			}
 		}
 		if (courseSelection != null) {
@@ -73,7 +89,10 @@ public class CourseSelectionModule implements ServiceModule {
 				if (save()) {
 					((TimetableSyncModule) service
 							.getServiceModule(TimetableSyncModule.class))
-							.requestTimetableUpdate();
+							.requestUpdate();
+					((TravelModule) service
+							.getServiceModule(TravelModule.class))
+							.requestUpdate();
 					requestCourseSelectionSave = false;
 					Log.i(TAG, "... done");
 				}
@@ -102,21 +121,6 @@ public class CourseSelectionModule implements ServiceModule {
 	public void setCourseSelection(Course courseSelection) {
 		this.courseSelection = courseSelection;
 		requestCourseSelectionSave = true;
-	}
-
-	@Override
-	public boolean save() {
-		if (isCourseSelected()) {
-			try {
-				ObjectFiles.saveObject(institutionSelection, getFolder()
-						+ institutionSelectionFile);
-				ObjectFiles.saveObject(courseSelection, getFolder()
-						+ courseSelectionFile);
-			} catch (IOException e) {
-				return false;
-			}
-		}
-		return true;
 	}
 
 }
