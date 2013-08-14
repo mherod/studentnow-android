@@ -1,10 +1,11 @@
 package com.studentnow.android.service;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.studentnow.Session;
-
-import com.studentnow.android.__;
+import org.studentnow.Timetable;
+import org.studentnow._;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -12,9 +13,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
+
+import com.studentnow.android.CardActivity;
+import com.studentnow.android.__;
 
 public class NotificationModule extends BroadcastReceiver implements
 		ServiceModule {
+
+	private final String TAG = CardActivity.class.getName();
 
 	private LiveService liveService = null;
 
@@ -26,6 +33,8 @@ public class NotificationModule extends BroadcastReceiver implements
 
 	public NotificationModule(LiveService liveService) {
 		this.liveService = liveService;
+		this.am = (AlarmManager) liveService
+				.getSystemService(Context.ALARM_SERVICE);
 	}
 
 	public void requestCardsRefresh() {
@@ -38,6 +47,7 @@ public class NotificationModule extends BroadcastReceiver implements
 
 	@Override
 	public void onReceive(Context c, Intent i) {
+		Log.d(TAG, "onReceive");
 		requestNextSessionNotification();
 	}
 
@@ -51,25 +61,9 @@ public class NotificationModule extends BroadcastReceiver implements
 	public void schedule() {
 		liveService.registerReceiver(this, new IntentFilter(
 				__.Intent_Notification));
-		
-		if (liveService.getTimetable() == null) {
-			return;
-		}
 
-		Session nextSession = liveService.getTimetable().getNextSession();
-
-		if (nextSession.isToday()) {
-
-			Calendar c = Calendar.getInstance();
-			c.add(Calendar.DAY_OF_MONTH, 0);
-			c.set(Calendar.HOUR_OF_DAY, nextSession.getStartTime().getHour());
-			c.set(Calendar.MINUTE, nextSession.getStartTime().getMin());
-			c.set(Calendar.SECOND, 0);
-			c.set(Calendar.MILLISECOND, 0);
-
-			am.set(AlarmManager.RTC, c.getTimeInMillis(), notificationIntent);
-
-		}
+		am.setRepeating(AlarmManager.RTC, Calendar.getInstance()
+				.getTimeInMillis() + 10 * 1000, 60 * 1000, notificationIntent);
 	}
 
 	@Override
@@ -78,10 +72,37 @@ public class NotificationModule extends BroadcastReceiver implements
 		liveService.unregisterReceiver(this);
 	}
 
+	final int MINS30 = 30 * 60 * 1000;
+
 	@Override
 	public void cycle() {
 		if (requestNextSessionNotification) {
 			requestNextSessionNotification = false;
+			Log.d(TAG, "requestNextSessionNotification");
+
+			Timetable tt;
+			Session nextSession;
+			if ((tt = liveService.getTimetable()) != null
+					&& (nextSession = tt.refreshStatus().getNextSession()) != null) {
+				long nowDate = new Date().getTime();
+				long nextDate = nextSession.getNextDate();
+
+				Log.d(TAG, "nowDate " + nowDate);
+				Log.d(TAG, "nextDate " + nextDate);
+
+				if (nextDate > 0) {
+					int travelTime = 0;
+					if (nextSession.isSet(_.FIELD_TRAVEL_DURATION)) {
+						travelTime = nextSession
+								.getInt(_.FIELD_TRAVEL_DURATION) * 1000;
+					}
+					Log.d(TAG,
+							((nextDate - nowDate) + " > " + (MINS30 + travelTime)));
+					if ((nextDate - nowDate) < (MINS30 + travelTime)) {
+						Log.d(TAG, "sendNotification");
+					}
+				}
+			}
 
 		}
 		if (requestCardRefresh) {

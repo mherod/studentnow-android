@@ -20,12 +20,15 @@ import com.studentnow.android.service.CourseSelectionModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.TimetableSyncModule;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 public class CardActivity extends Activity implements Runnable {
 
-	private final String TAG = CardActivity.class.getName();
+	// private final String TAG = CardActivity.class.getName();
 
 	private View mContentView;
-	private CardUI mCards;
+	private CardUI mCardsView;
 	private ProgressBar mLoadingView;
 	private int mShortAnimationDuration = 700;
 
@@ -56,7 +59,7 @@ public class CardActivity extends Activity implements Runnable {
 
 		mLoadingView = (ProgressBar) findViewById(R.id.loading_spinner);
 		mContentView = findViewById(R.id.content);
-		mCards = (CardUI) findViewById(R.id.cards);
+		mCardsView = (CardUI) findViewById(R.id.cards);
 
 		serviceLink = new LiveServiceLink();
 	}
@@ -106,7 +109,6 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		Intent intent;
 		switch (item.getItemId()) {
 
 		case R.id.action_setup:
@@ -114,8 +116,7 @@ public class CardActivity extends Activity implements Runnable {
 			return true;
 
 		case R.id.action_settings:
-			intent = new Intent(this, SettingsActivity.class);
-			startActivity(intent);
+			startActivity(new Intent(this, SettingsActivity.class));
 			return true;
 
 		case R.id.action_refresh:
@@ -125,8 +126,7 @@ public class CardActivity extends Activity implements Runnable {
 			return true;
 
 		case R.id.action_credits:
-			intent = new Intent(this, CreditActivity.class);
-			startActivity(intent);
+			startActivity(new Intent(this, CreditActivity.class));
 			return true;
 
 		default:
@@ -136,8 +136,7 @@ public class CardActivity extends Activity implements Runnable {
 	}
 
 	private void openSetupWizard() {
-		Intent intent = new Intent(this, SetupActivity.class);
-		startActivityForResult(intent, 10);
+		startActivityForResult(new Intent(this, SetupActivity.class), 10);
 	}
 
 	private boolean updateCardsView() {
@@ -147,7 +146,7 @@ public class CardActivity extends Activity implements Runnable {
 		}
 		CardViewBuildModule cvbm = (CardViewBuildModule) l
 				.getServiceModule(CardViewBuildModule.class);
-		boolean cards = cvbm.renderCardsView(mCards);
+		boolean cards = cvbm.renderCardsView(mCardsView);
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
 	}
@@ -223,7 +222,10 @@ public class CardActivity extends Activity implements Runnable {
 	};
 
 	private void toast(String s) {
-		Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
+		
+		Crouton.makeText(this, s, Style.INFO).show();
+		
 	}
 
 }

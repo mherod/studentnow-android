@@ -12,7 +12,7 @@ import android.os.IBinder;
 
 public class LiveService extends Service implements Runnable {
 
-	private final String TAG = LiveService.class.getName();
+	// private final String TAG = LiveService.class.getName();
 
 	private final Thread serviceThread = new Thread(this);
 

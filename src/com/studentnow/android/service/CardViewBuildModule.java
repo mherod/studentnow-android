@@ -2,6 +2,7 @@ package com.studentnow.android.service;
 
 import org.studentnow.Course;
 import org.studentnow.Session;
+import org.studentnow.Time;
 import org.studentnow.Timetable;
 import org.studentnow._;
 
@@ -132,6 +133,7 @@ public class CardViewBuildModule implements ServiceModule {
 			cardsView.addCard(new MyCard(l.getString(R.string.week) + " "
 					+ tt.getWeek(), l.getString(R.string.week_desc)));
 
+			Time lastTime = null;
 			MyCard newCard;
 			for (Session session : tt.getSessions()) {
 				if (session.hasPassed())
@@ -143,17 +145,19 @@ public class CardViewBuildModule implements ServiceModule {
 						int mins = session.getInt(_.FIELD_TRAVEL_DURATION) / 60;
 						travel += ",\ntravel time ~ " + mins + " mins";
 					}
-				} else {
-					// travel += ",\nyou may not arrive in time";
 				}
 
 				newCard = new MyCard(session.get(_.FIELD_TYPE) + " at "
 						+ session.get(_.FIELD_TIME_START) + travel,
 						session.get(_.FIELD_MODULE) + " in "
 								+ session.get(_.FIELD_ROOM_NAME));
-
-				cardsView.addCard(newCard);
-
+				
+				if (lastTime != null && session.getStartTime().compareTo(lastTime) == 0) {
+					cardsView.addCardToLastStack(newCard);					
+				} else {
+					cardsView.addCard(newCard);					
+				}
+				lastTime = session.getStartTime();
 			}
 			break;
 
