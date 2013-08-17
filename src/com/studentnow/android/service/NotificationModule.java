@@ -1,11 +1,6 @@
 package com.studentnow.android.service;
 
 import java.util.Calendar;
-import java.util.Date;
-
-import org.studentnow.Session;
-import org.studentnow.Timetable;
-import org.studentnow._;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -76,35 +71,35 @@ public class NotificationModule extends BroadcastReceiver implements
 
 	@Override
 	public void cycle() {
-		if (requestNextSessionNotification) {
-			requestNextSessionNotification = false;
-			Log.d(TAG, "requestNextSessionNotification");
-
-			Timetable tt;
-			Session nextSession;
-			if ((tt = liveService.getTimetable()) != null
-					&& (nextSession = tt.refreshStatus().getNextSession()) != null) {
-				long nowDate = new Date().getTime();
-				long nextDate = nextSession.getNextDate();
-
-				Log.d(TAG, "nowDate " + nowDate);
-				Log.d(TAG, "nextDate " + nextDate);
-
-				if (nextDate > 0) {
-					int travelTime = 0;
-					if (nextSession.isSet(_.FIELD_TRAVEL_DURATION)) {
-						travelTime = nextSession
-								.getInt(_.FIELD_TRAVEL_DURATION) * 1000;
-					}
-					Log.d(TAG,
-							((nextDate - nowDate) + " > " + (MINS30 + travelTime)));
-					if ((nextDate - nowDate) < (MINS30 + travelTime)) {
-						Log.d(TAG, "sendNotification");
-					}
-				}
-			}
-
-		}
+//		if (requestNextSessionNotification) {
+//			requestNextSessionNotification = false;
+//			Log.d(TAG, "requestNextSessionNotification");
+//
+//			Timetable tt;
+//			Session nextSession;
+//			if ((tt = liveService.getTimetable()) != null
+//					&& (nextSession = tt.refreshStatus().getNextSession()) != null) {
+//				long nowDate = new Date().getTime();
+//				long nextDate = nextSession.getNextDate();
+//
+//				Log.d(TAG, "nowDate " + nowDate);
+//				Log.d(TAG, "nextDate " + nextDate);
+//
+//				if (nextDate > 0) {
+//					int travelTime = 0;
+//					if (nextSession.isSet(_.FIELD_TRAVEL_DURATION)) {
+//						travelTime = nextSession
+//								.getInt(_.FIELD_TRAVEL_DURATION) * 1000;
+//					}
+//					Log.d(TAG,
+//							((nextDate - nowDate) + " > " + (MINS30 + travelTime)));
+//					if ((nextDate - nowDate) < (MINS30 + travelTime)) {
+//						Log.d(TAG, "sendNotification");
+//					}
+//				}
+//			}
+//
+//		}
 		if (requestCardRefresh) {
 			requestCardRefresh = false;
 			liveService.sendBroadcast(new Intent(__.Intent_CardUpdate));

@@ -3,8 +3,6 @@ package com.studentnow.android.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.studentnow.Timetable;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -12,13 +10,11 @@ import android.os.IBinder;
 
 public class LiveService extends Service implements Runnable {
 
-	// private final String TAG = LiveService.class.getName();
+//	private final String TAG = LiveService.class.getName();
 
 	private final Thread serviceThread = new Thread(this);
 
 	private List<ServiceModule> modules;
-
-	private Timetable timetable = null;
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startid) {
@@ -71,25 +67,11 @@ public class LiveService extends Service implements Runnable {
 		return modules;
 	}
 
-	/*
-	 * @SuppressWarnings({ "unchecked", "rawtypes" }) public <T> T
-	 * getServiceModule(Class c) { for (ServiceModule m : modules) if
-	 * (m.getClass().equals(c)) return (T) m; return null; }
-	 */
-
 	public ServiceModule getServiceModule(@SuppressWarnings("rawtypes") Class c) {
 		for (ServiceModule m : modules)
 			if (m.getClass().equals(c))
 				return m;
 		return null;
-	}
-
-	public Timetable getTimetable() {
-		return timetable;
-	}
-
-	public void setTimetable(Timetable timetable) {
-		this.timetable = timetable;
 	}
 
 	private final IBinder mBinder = new MyBinder();

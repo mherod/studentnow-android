@@ -28,7 +28,7 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 	private PendingIntent partDailyIntent;
 	private PendingIntent fullDailyIntent;
 
-	private boolean requestTimetableUpdate = false;
+	private boolean requestUpdate = false;
 
 	public TimetableSyncModule(LiveService live) {
 		this.liveService = live;
@@ -80,29 +80,29 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 	public void cycle() {
 		AccountModule courseSelection = (AccountModule) liveService
 				.getServiceModule(AccountModule.class);
-		while ((requestTimetableUpdate || liveService.getTimetable() == null)
-				&& courseSelection.getCourse() != null) {
-			
-			Log.i(TAG, "Querying timetable information...");
-			
-			long l = System.currentTimeMillis();
-
-			Timetable t = TimetableQuery.query(courseSelection.getCourse()
-					.getProgrammeID(), true);
-
-			if (t != null) {
-				liveService.setTimetable(t);
-				requestTimetableUpdate = false;
-			}
-
-			((NotificationModule) liveService
-					.getServiceModule(NotificationModule.class))
-					.requestCardsRefresh();
-
-			Log.i(TAG,
-					"... " + "timetable updated in "
-							+ (System.currentTimeMillis() - l) + "ms");
-		}
+//		while ((requestTimetableUpdate || liveService.getTimetable() == null)
+//				&& courseSelection.getCourse() != null) {
+//			
+//			Log.i(TAG, "Querying timetable information...");
+//			
+//			long l = System.currentTimeMillis();
+//
+//			Timetable t = TimetableQuery.query(courseSelection.getCourse()
+//					.getProgrammeID(), true);
+//
+//			if (t != null) {
+//				liveService.setTimetable(t);
+//				requestTimetableUpdate = false;
+//			}
+//
+//			((NotificationModule) liveService
+//					.getServiceModule(NotificationModule.class))
+//					.requestCardsRefresh();
+//
+//			Log.i(TAG,
+//					"... " + "timetable updated in "
+//							+ (System.currentTimeMillis() - l) + "ms");
+//		}
 
 	}
 
@@ -115,7 +115,7 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 	}
 
 	public void requestUpdate() {
-		this.requestTimetableUpdate = true;
+		this.requestUpdate = true;
 	}
 
 	@Override
