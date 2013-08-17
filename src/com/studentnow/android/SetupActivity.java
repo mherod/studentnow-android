@@ -2,15 +2,8 @@ package com.studentnow.android;
 
 import java.util.Locale;
 
-import org.studentnow.Course;
-import org.studentnow.Institution;
-
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -26,15 +19,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.fima.cardsui.views.CardUI;
-import com.studentnow.android.service.LiveService;
 
 public class SetupActivity extends FragmentActivity implements
 		ViewPager.OnPageChangeListener {
 
 	private LiveServiceLink serviceLink = null;
 
-	private Institution institutionSelection = null;
-	private Course courseSelection = null;
+//	private Institution institutionSelection = null;
+//	private Course courseSelection = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	static ViewPager mViewPager;
@@ -69,10 +61,6 @@ public class SetupActivity extends FragmentActivity implements
 	protected void onDestroy() {
 		super.onDestroy();
 		serviceLink.stop(this);
-	}
-
-	private LiveService live() {
-		return serviceLink.getLiveService();
 	}
 
 	@Override
@@ -133,48 +121,21 @@ public class SetupActivity extends FragmentActivity implements
 		startActivityForResult(new Intent(this, LoginActivity.class), 5);
 	}
 
-	protected void openCourseSelection() {
-		startActivityForResult(
-				new Intent(this, CourseSelectActivity.class).putExtra("inst",
-						institutionSelection), 6);
-	}
+//	protected void openCourseSelection() {
+//		startActivityForResult(
+//				new Intent(this, CourseSelectActivity.class).putExtra("inst",
+//						institutionSelection), 6);
+//	}
 
 	protected void finishSelections() {
-//		if (institutionSelection == null || courseSelection == null) {
-//			mViewPager.setCurrentItem(0);
-//			return;
-//		}
-//		AccountModule csm = (AccountModule) live().getServiceModule(
-//				AccountModule.class);
-//		csm.setInstitutionSelection(institutionSelection);
-//		csm.setCourseSelection(courseSelection);
-
-		Intent i = new Intent(this, CardActivity.class);
-		startActivity(i);
-
+		startActivity(new Intent(this, CardActivity.class));
 		finish();
 	}
 
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent intent) {
 		if (requestCode == 5 && resultCode == RESULT_OK) {
-			Institution in = (Institution) intent.getSerializableExtra("inst");
-			if (in != null) {
-				institutionSelection = in;
-				if (enabledPages < 3) {
-					enabledPages = 3;
-					mViewPager.setCurrentItem(2);
-				}
-			}
-		} else if (requestCode == 6 && resultCode == RESULT_OK) {
-			Course course = (Course) intent.getSerializableExtra("course");
-			if (course != null) {
-				courseSelection = course;
-				if (enabledPages < 4) {
-					enabledPages = 4;
-					mViewPager.setCurrentItem(3);
-				}
-			}
+			finishSelections();
 		}
 	}
 
@@ -193,8 +154,6 @@ public class SetupActivity extends FragmentActivity implements
 				return new LoginFragment();
 			case 2:
 				return new CourseSelectionFragment();
-			case 3:
-				return new FinishFragment();
 			}
 			return null;
 		}
@@ -214,8 +173,6 @@ public class SetupActivity extends FragmentActivity implements
 				return getString(R.string.setup_title_selectuni).toUpperCase(l);
 			case 2:
 				return getString(R.string.select_course).toUpperCase(l);
-			case 3:
-				return getString(R.string.finish).toUpperCase(l);
 			}
 			return null;
 		}
@@ -304,48 +261,11 @@ public class SetupActivity extends FragmentActivity implements
 			choose.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-					SetupActivity parent = (SetupActivity) getActivity();
-					parent.openCourseSelection();
+//					SetupActivity parent = (SetupActivity) getActivity();
+//					parent.openCourseSelection();
 				}
 			});
 			return rootView;
-		}
-	}
-
-	public static class FinishFragment extends Fragment {
-
-		public FinishFragment() {
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(
-					R.layout.activity_setup_finish_fragment, container, false);
-
-			Button choose = (Button) rootView.findViewById(R.id.action_finish);
-			choose.setOnClickListener(new OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					SetupActivity parent = (SetupActivity) getActivity();
-					parent.finishSelections();
-				}
-			});
-			return rootView;
-		}
-	}
-
-	public static class CantFindDialogFragment extends DialogFragment {
-		@Override
-		public Dialog onCreateDialog(Bundle savedInstanceState) {
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setMessage(R.string.cantfind).setPositiveButton(
-					R.string.ok, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							dismiss();
-						}
-					});
-			return builder.create();
 		}
 	}
 
