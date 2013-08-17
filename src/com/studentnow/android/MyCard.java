@@ -1,5 +1,7 @@
 package com.studentnow.android;
 
+import org.studentnow.ECard;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,10 @@ public class MyCard extends Card {
 		super(title);
 
 		this.desc = desc;
+	}
+
+	public MyCard(ECard ecard) {
+		this(ecard.getTitle(), ecard.getDesc());
 	}
 
 	@Override

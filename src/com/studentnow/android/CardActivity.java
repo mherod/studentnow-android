@@ -12,11 +12,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.fima.cardsui.views.CardUI;
-import com.studentnow.android.service.CardViewBuildModule;
-import com.studentnow.android.service.CourseSelectionModule;
+import com.studentnow.android.service.AccountModule;
+import com.studentnow.android.service.CardsBuildModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.TimetableSyncModule;
 
@@ -94,13 +93,6 @@ public class CardActivity extends Activity implements Runnable {
 		serviceLink.stop(this);
 	}
 
-	protected void onActivityResult(int requestCode, int resultCode,
-			Intent intent) {
-		if (requestCode == 10) {
-			finish();
-		}
-	}
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_card_menu, menu);
@@ -112,7 +104,7 @@ public class CardActivity extends Activity implements Runnable {
 		switch (item.getItemId()) {
 
 		case R.id.action_setup:
-			openSetupWizard();
+			openSetup();
 			return true;
 
 		case R.id.action_settings:
@@ -135,8 +127,8 @@ public class CardActivity extends Activity implements Runnable {
 		}
 	}
 
-	private void openSetupWizard() {
-		startActivityForResult(new Intent(this, SetupActivity.class), 10);
+	private void openSetup() {
+		startActivity(new Intent(this, SetupActivity.class));
 	}
 
 	private boolean updateCardsView() {
@@ -144,8 +136,8 @@ public class CardActivity extends Activity implements Runnable {
 		if ((l = getLiveService()) == null) {
 			return false;
 		}
-		CardViewBuildModule cvbm = (CardViewBuildModule) l
-				.getServiceModule(CardViewBuildModule.class);
+		CardsBuildModule cvbm = (CardsBuildModule) l
+				.getServiceModule(CardsBuildModule.class);
 		boolean cards = cvbm.renderCardsView(mCardsView);
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
@@ -170,7 +162,6 @@ public class CardActivity extends Activity implements Runnable {
 	}
 
 	private Runnable updateCardsRunnable = new Runnable() {
-
 		@Override
 		public void run() {
 			LiveService l;
@@ -178,15 +169,14 @@ public class CardActivity extends Activity implements Runnable {
 				updateCardsFlag = true;
 				return;
 			}
-			CourseSelectionModule csm = (CourseSelectionModule) l
-					.getServiceModule(CourseSelectionModule.class);
-			if (csm.isCourseSelected()) {
-				updateCardsFlag = !updateCardsView();
+			AccountModule am = (AccountModule) l
+					.getServiceModule(AccountModule.class);
+			if (!am.hasAuthKey() /*|| !am.isCourseSelected()*/) {
+				openSetup();
 			} else {
-				openSetupWizard();
+				updateCardsFlag = !updateCardsView();
 			}
 		}
-
 	};
 
 	private boolean isLoadingView() {
@@ -222,9 +212,10 @@ public class CardActivity extends Activity implements Runnable {
 	};
 
 	private void toast(String s) {
-		//Toast.makeText(getApplicationContext(), s, Toast.LENGTH_SHORT).show();
-		
-		Crouton.makeText(this, s, Style.INFO).show();		
+		// Toast.makeText(getApplicationContext(), s,
+		// Toast.LENGTH_SHORT).show();
+
+		Crouton.makeText(this, s, Style.INFO).show();
 	}
 
 }

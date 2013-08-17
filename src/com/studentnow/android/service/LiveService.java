@@ -31,11 +31,11 @@ public class LiveService extends Service implements Runnable {
 	@Override
 	public void run() {
 		modules = new ArrayList<ServiceModule>();
-		modules.add(new CourseSelectionModule(this));
-		modules.add(new TimetableSyncModule(this));
+		modules.add(new AccountModule(this));
+		// modules.add(new TimetableSyncModule(this));
 		modules.add(new LocationModule(this));
-		modules.add(new TravelModule(this));
-		modules.add(new CardViewBuildModule(this));
+		// modules.add(new TravelModule(this));
+		modules.add(new CardsBuildModule(this));
 		modules.add(new NotificationModule(this));
 
 		for (ServiceModule m : modules) {

@@ -51,5 +51,8 @@
     <string name="title_activity_institution_select">Select university</string>
     <string name="hello_world">Hello world!</string>
     <string name="ok">OK</string>
+    
+    <string name="login">Login</string>
+    <string name="login_explain">We need to know which university you go to in order to retrieve the correct information.</string>
 
 </resources>

@@ -26,7 +26,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.fima.cardsui.views.CardUI;
-import com.studentnow.android.service.CourseSelectionModule;
 import com.studentnow.android.service.LiveService;
 
 public class SetupActivity extends FragmentActivity implements
@@ -130,9 +129,8 @@ public class SetupActivity extends FragmentActivity implements
 		super.onBackPressed();
 	}
 
-	protected void openInstitutionSelection() {
-		startActivityForResult(
-				new Intent(this, InstitutionSelectActivity.class), 5);
+	protected void openLogin() {
+		startActivityForResult(new Intent(this, LoginActivity.class), 5);
 	}
 
 	protected void openCourseSelection() {
@@ -142,14 +140,14 @@ public class SetupActivity extends FragmentActivity implements
 	}
 
 	protected void finishSelections() {
-		if (institutionSelection == null || courseSelection == null) {
-			mViewPager.setCurrentItem(0);
-			return;
-		}
-		CourseSelectionModule csm = (CourseSelectionModule) live()
-				.getServiceModule(CourseSelectionModule.class);
-		csm.setInstitutionSelection(institutionSelection);
-		csm.setCourseSelection(courseSelection);
+//		if (institutionSelection == null || courseSelection == null) {
+//			mViewPager.setCurrentItem(0);
+//			return;
+//		}
+//		AccountModule csm = (AccountModule) live().getServiceModule(
+//				AccountModule.class);
+//		csm.setInstitutionSelection(institutionSelection);
+//		csm.setCourseSelection(courseSelection);
 
 		Intent i = new Intent(this, CardActivity.class);
 		startActivity(i);
@@ -192,7 +190,7 @@ public class SetupActivity extends FragmentActivity implements
 			case 0:
 				return new WelcomeFragment();
 			case 1:
-				return new InstitutionSelectionFragment();
+				return new LoginFragment();
 			case 2:
 				return new CourseSelectionFragment();
 			case 3:
@@ -249,34 +247,32 @@ public class SetupActivity extends FragmentActivity implements
 		}
 	}
 
-	public static class InstitutionSelectionFragment extends Fragment {
+	public static class LoginFragment extends Fragment {
 
 		private CardUI mCards;
 
-		public InstitutionSelectionFragment() {
+		public LoginFragment() {
 		}
 
 		@Override
 		public View onCreateView(LayoutInflater inflater, ViewGroup container,
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(
-					R.layout.activity_setup_institution_fragment, container,
-					false);
+					R.layout.activity_setup_login_fragment, container, false);
 
-			String title = getString(R.string.setup_select_university);
-			String content = getString(R.string.setup_select_university_content);
+			String title = getString(R.string.login);
+			String content = getString(R.string.login_explain);
 			mCards = (CardUI) rootView.findViewById(R.id.cardssetup);
 			mCards.addCard(new MyCard(title, content));
 			mCards.setSwipeable(false);
 			mCards.refresh();
 
-			Button choose = (Button) rootView
-					.findViewById(R.id.action_select_university);
+			Button choose = (Button) rootView.findViewById(R.id.action_login);
 			choose.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
 					SetupActivity parent = (SetupActivity) getActivity();
-					parent.openInstitutionSelection();
+					parent.openLogin();
 				}
 			});
 			return rootView;

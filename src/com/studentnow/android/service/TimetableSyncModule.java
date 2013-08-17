@@ -78,8 +78,8 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 	@Override
 	public void cycle() {
-		CourseSelectionModule courseSelection = (CourseSelectionModule) liveService
-				.getServiceModule(CourseSelectionModule.class);
+		AccountModule courseSelection = (AccountModule) liveService
+				.getServiceModule(AccountModule.class);
 		while ((requestTimetableUpdate || liveService.getTimetable() == null)
 				&& courseSelection.getCourse() != null) {
 			
