@@ -1,12 +1,14 @@
 package com.studentnow.android.service;
 
+import herod.gd.Location;
+
 import java.util.Calendar;
+import java.util.List;
 import java.util.Random;
 
-import org.studentnow.Timetable;
-import org.studentnow.api.TimetableQuery;
-
-import com.studentnow.android.__;
+import org.studentnow.AuthKey;
+import org.studentnow.ECard;
+import org.studentnow.api.CardsQuery;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -16,8 +18,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
-public class TimetableSyncModule extends BroadcastReceiver implements
-		ServiceModule {
+import com.studentnow.android.__;
+import com.studentnow.android.service.LocationCache.CachedLocation;
+
+public class CardSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	private final String TAG = this.getClass().getName();
 
@@ -30,7 +34,7 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 	private boolean requestUpdate = false;
 
-	public TimetableSyncModule(LiveService live) {
+	public CardSyncModule(LiveService live) {
 		this.liveService = live;
 
 		this.partDailyIntent = PendingIntent.getBroadcast(live, 0, new Intent(
@@ -78,32 +82,41 @@ public class TimetableSyncModule extends BroadcastReceiver implements
 
 	@Override
 	public void cycle() {
-		AccountModule courseSelection = (AccountModule) liveService
+		AccountModule am = (AccountModule) liveService
 				.getServiceModule(AccountModule.class);
-//		while ((requestTimetableUpdate || liveService.getTimetable() == null)
-//				&& courseSelection.getCourse() != null) {
-//			
-//			Log.i(TAG, "Querying timetable information...");
-//			
-//			long l = System.currentTimeMillis();
-//
-//			Timetable t = TimetableQuery.query(courseSelection.getCourse()
-//					.getProgrammeID(), true);
-//
-//			if (t != null) {
-//				liveService.setTimetable(t);
-//				requestTimetableUpdate = false;
-//			}
-//
-//			((NotificationModule) liveService
-//					.getServiceModule(NotificationModule.class))
-//					.requestCardsRefresh();
-//
-//			Log.i(TAG,
-//					"... " + "timetable updated in "
-//							+ (System.currentTimeMillis() - l) + "ms");
-//		}
+		AuthKey authKey = am.getAuthKey();
+		while (requestUpdate || liveService.getCards().size() == 0) {
+			if (authKey == null) {
+				break;
+			}
+			Location loc = getLastLocation();
+			List<ECard> newCards = CardsQuery.query(authKey, loc);
+			if (newCards == null) {
+				break;
+			}
+			Log.d(TAG, "Updating cards with " + newCards.size() + " new");
+			liveService.getCards().clear();
+			liveService.getCards().addAll(newCards);
+			requestUpdate = false;
 
+			((NotificationModule) liveService
+					.getServiceModule(NotificationModule.class))
+					.requestCardsRefresh();
+		}
+	}
+
+	private LocationModule getLocationModule() {
+		return ((LocationModule) liveService
+				.getServiceModule(LocationModule.class));
+	}
+
+	private Location getLastLocation() {
+		try {
+			return getLocationModule().getLocationCache().getLastLocation()
+					.getLocation();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@Override

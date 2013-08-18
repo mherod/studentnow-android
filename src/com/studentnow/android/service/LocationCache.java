@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.location.Location;
 
 public class LocationCache extends SQLiteOpenHelper {
 
@@ -133,7 +132,7 @@ public class LocationCache extends SQLiteOpenHelper {
 		return null;
 	}
 
-	public void storeLocation(Location loc) {
+	public void storeLocation(android.location.Location loc) {
 
 		SQLiteDatabase db = this.getWritableDatabase();
 
@@ -184,6 +183,10 @@ public class LocationCache extends SQLiteOpenHelper {
 
 		public void setLat(double lat) {
 			this.lat = lat;
+		}
+
+		public herod.gd.Location getLocation() {
+			return new herod.gd.Location(lat, lng);
 		}
 
 	}

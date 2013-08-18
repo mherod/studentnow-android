@@ -65,11 +65,11 @@ public class AccountModule implements ServiceModule {
 		while (requestSave) {
 			Log.i(TAG, "Saving new account data...");
 			if (save()) {
-				((TimetableSyncModule) service
-						.getServiceModule(TimetableSyncModule.class))
+				((CardSyncModule) service
+						.getServiceModule(CardSyncModule.class))
 						.requestUpdate();
-				((TravelModule) service.getServiceModule(TravelModule.class))
-						.requestUpdate();
+//				((TravelModule) service.getServiceModule(TravelModule.class))
+//						.requestUpdate();
 				requestSave = false;
 				Log.i(TAG, "... done");
 			}

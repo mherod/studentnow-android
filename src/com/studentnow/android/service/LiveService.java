@@ -3,6 +3,8 @@ package com.studentnow.android.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.studentnow.ECard;
+
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
@@ -10,11 +12,13 @@ import android.os.IBinder;
 
 public class LiveService extends Service implements Runnable {
 
-//	private final String TAG = LiveService.class.getName();
+	// private final String TAG = LiveService.class.getName();
 
 	private final Thread serviceThread = new Thread(this);
 
 	private List<ServiceModule> modules;
+
+	private List<ECard> cards = new ArrayList<ECard>();
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startid) {
@@ -28,7 +32,7 @@ public class LiveService extends Service implements Runnable {
 	public void run() {
 		modules = new ArrayList<ServiceModule>();
 		modules.add(new AccountModule(this));
-		// modules.add(new TimetableSyncModule(this));
+		modules.add(new CardSyncModule(this));
 		modules.add(new LocationModule(this));
 		// modules.add(new TravelModule(this));
 		modules.add(new CardsBuildModule(this));
@@ -72,6 +76,10 @@ public class LiveService extends Service implements Runnable {
 			if (m.getClass().equals(c))
 				return m;
 		return null;
+	}
+
+	public List<ECard> getCards() {
+		return cards;
 	}
 
 	private final IBinder mBinder = new MyBinder();

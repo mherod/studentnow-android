@@ -17,7 +17,7 @@ import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.service.AccountModule;
 import com.studentnow.android.service.CardsBuildModule;
 import com.studentnow.android.service.LiveService;
-import com.studentnow.android.service.TimetableSyncModule;
+import com.studentnow.android.service.CardSyncModule;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -112,8 +112,8 @@ public class CardActivity extends Activity implements Runnable {
 			return true;
 
 		case R.id.action_refresh:
-			((TimetableSyncModule) getLiveService().getServiceModule(
-					TimetableSyncModule.class)).requestUpdate();
+			((CardSyncModule) getLiveService().getServiceModule(
+					CardSyncModule.class)).requestUpdate();
 			toast("Refreshing...");
 			return true;
 
