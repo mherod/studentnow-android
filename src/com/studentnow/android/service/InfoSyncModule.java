@@ -6,7 +6,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
-import org.studentnow.AuthKey;
+import org.studentnow.AuthResponse;
 import org.studentnow.ECard;
 import org.studentnow.api.CardsQuery;
 
@@ -19,9 +19,8 @@ import android.content.IntentFilter;
 import android.util.Log;
 
 import com.studentnow.android.__;
-import com.studentnow.android.service.LocationCache.CachedLocation;
 
-public class CardSyncModule extends BroadcastReceiver implements ServiceModule {
+public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	private final String TAG = this.getClass().getName();
 
@@ -29,12 +28,11 @@ public class CardSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	private AlarmManager am;
 
-	private PendingIntent partDailyIntent;
-	private PendingIntent fullDailyIntent;
+	private PendingIntent partDailyIntent, fullDailyIntent;
 
 	private boolean requestUpdate = false;
 
-	public CardSyncModule(LiveService live) {
+	public InfoSyncModule(LiveService live) {
 		this.liveService = live;
 
 		this.partDailyIntent = PendingIntent.getBroadcast(live, 0, new Intent(
@@ -84,7 +82,7 @@ public class CardSyncModule extends BroadcastReceiver implements ServiceModule {
 	public void cycle() {
 		AccountModule am = (AccountModule) liveService
 				.getServiceModule(AccountModule.class);
-		AuthKey authKey = am.getAuthKey();
+		AuthResponse authKey = am.getAuthResponse();
 		while (requestUpdate || liveService.getCards().size() == 0) {
 			if (authKey == null) {
 				break;

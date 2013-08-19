@@ -17,7 +17,7 @@ import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.service.AccountModule;
 import com.studentnow.android.service.CardsBuildModule;
 import com.studentnow.android.service.LiveService;
-import com.studentnow.android.service.CardSyncModule;
+import com.studentnow.android.service.InfoSyncModule;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -112,8 +112,8 @@ public class CardActivity extends Activity implements Runnable {
 			return true;
 
 		case R.id.action_refresh:
-			((CardSyncModule) getLiveService().getServiceModule(
-					CardSyncModule.class)).requestUpdate();
+			((InfoSyncModule) getLiveService().getServiceModule(
+					InfoSyncModule.class)).requestUpdate();
 			toast("Refreshing...");
 			return true;
 
@@ -171,7 +171,7 @@ public class CardActivity extends Activity implements Runnable {
 			}
 			AccountModule am = (AccountModule) l
 					.getServiceModule(AccountModule.class);
-			if (!am.hasAuthKey() /*|| !am.isCourseSelected()*/) {
+			if (!am.hasAuthResponse() /* || !am.isCourseSelected() */) {
 				openSetup();
 			} else {
 				updateCardsFlag = !updateCardsView();

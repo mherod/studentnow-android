@@ -57,7 +57,8 @@ public class CardsBuildModule implements ServiceModule {
 	}
 
 	public boolean renderCardsView(CardUI cardsView) {
-		if (mLiveService.getCards() == null) {
+		if (mLiveService.getCards() == null
+				|| mLiveService.getCards().size() == 0) {
 			return false;
 		}
 

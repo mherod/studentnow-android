@@ -32,7 +32,7 @@ public class LiveService extends Service implements Runnable {
 	public void run() {
 		modules = new ArrayList<ServiceModule>();
 		modules.add(new AccountModule(this));
-		modules.add(new CardSyncModule(this));
+		modules.add(new InfoSyncModule(this));
 		modules.add(new LocationModule(this));
 		// modules.add(new TravelModule(this));
 		modules.add(new CardsBuildModule(this));
@@ -45,13 +45,13 @@ public class LiveService extends Service implements Runnable {
 			m.schedule();
 		}
 		while (true) {
-			try {
-				for (ServiceModule m : modules) {
+			for (ServiceModule m : modules) {
+				try {
 					m.cycle();
+					Thread.sleep(250);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				Thread.sleep(1000);
-			} catch (Exception e) {
-				e.printStackTrace();
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 package com.studentnow.android;
 
-import org.studentnow.AuthKey;
+import org.studentnow.AuthResponse;
 import org.studentnow.api.Auth;
 
 import android.animation.Animator;
@@ -201,15 +201,13 @@ public class LoginActivity extends Activity {
 						}
 					});
 		} else {
-			// The ViewPropertyAnimator APIs are not available, so simply show
-			// and hide the relevant UI components.
 			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
 			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
 	}
 
 	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
-		AuthKey authKey = null;
+		AuthResponse authResponse = null;
 
 		LiveService live = serviceLink.getLiveService();
 
@@ -221,7 +219,7 @@ public class LoginActivity extends Activity {
 				} catch (Exception e) {
 				}
 			}
-			return (authKey = Auth.register(mEmail, mPassword)) != null;
+			return (authResponse = Auth.register(mEmail, mPassword)) != null;
 		}
 
 		@Override
@@ -230,17 +228,56 @@ public class LoginActivity extends Activity {
 			showProgress(false);
 
 			if (success) {
-				AccountModule am = (AccountModule) live
-						.getServiceModule(AccountModule.class);
-				am.setAuthKey(authKey);
+				switch (authResponse.getStatus()) {
+				case Auth.response_ok:
+					AccountModule am = (AccountModule) live
+							.getServiceModule(AccountModule.class);
+					am.setAuthResponse(authResponse);
 
-				Intent returnIntent = new Intent();
-				setResult(RESULT_OK, returnIntent);
+					setResult(RESULT_OK, new Intent());
 
-				finish();
+					finish();
+					break;
+
+				case Auth.response_error:
+					mPasswordView
+							.setError(getString(R.string.error_field_error));
+					mPasswordView.requestFocus();
+					break;
+
+				case Auth.response_bademail:
+					mEmailView
+							.setError(getString(R.string.error_invalid_email));
+					mEmailView.requestFocus();
+					break;
+
+				case Auth.response_badpass:
+					mPasswordView
+							.setError(getString(R.string.error_invalid_password));
+					mPasswordView.requestFocus();
+					break;
+
+				case Auth.response_wrongpass:
+					mPasswordView
+							.setError(getString(R.string.error_incorrect_password));
+					mPasswordView.requestFocus();
+					break;
+
+				case Auth.response_existsemail:
+					mEmailView
+							.setError(getString(R.string.error_already_email));
+					mEmailView.requestFocus();
+					break;
+
+				default:
+					mPasswordView
+							.setError(getString(R.string.error_field_error));
+					mPasswordView.requestFocus();
+					break;
+
+				}
 			} else {
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
+				mPasswordView.setError(getString(R.string.error_field_error));
 				mPasswordView.requestFocus();
 			}
 		}

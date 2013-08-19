@@ -3,7 +3,7 @@ package com.studentnow.android.service;
 import java.io.File;
 import java.io.IOException;
 
-import org.studentnow.AuthKey;
+import org.studentnow.AuthResponse;
 
 import android.util.Log;
 
@@ -19,7 +19,7 @@ public class AccountModule implements ServiceModule {
 
 	private LiveService service = null;
 
-	private AuthKey authKey = null;
+	private AuthResponse authResponse = null;
 
 	public AccountModule(LiveService liveService) {
 		this.service = liveService;
@@ -32,7 +32,7 @@ public class AccountModule implements ServiceModule {
 	@Override
 	public void load() {
 		try {
-			authKey = (AuthKey) ObjectFiles.readObject(getFolder()
+			authResponse = (AuthResponse) ObjectFiles.readObject(getFolder()
 					+ authKeyFile);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -44,7 +44,7 @@ public class AccountModule implements ServiceModule {
 	@Override
 	public boolean save() {
 		try {
-			ObjectFiles.saveObject(authKey, getFolder() + authKeyFile);
+			ObjectFiles.saveObject(authResponse, getFolder() + authKeyFile);
 		} catch (IOException e) {
 			return false;
 		}
@@ -65,50 +65,26 @@ public class AccountModule implements ServiceModule {
 		while (requestSave) {
 			Log.i(TAG, "Saving new account data...");
 			if (save()) {
-				((CardSyncModule) service
-						.getServiceModule(CardSyncModule.class))
-						.requestUpdate();
-//				((TravelModule) service.getServiceModule(TravelModule.class))
-//						.requestUpdate();
 				requestSave = false;
+				((InfoSyncModule) service
+						.getServiceModule(InfoSyncModule.class))
+						.requestUpdate();
 				Log.i(TAG, "... done");
 			}
 		}
 	}
 
-//	public Institution getInstitution() {
-//		return institutionSelection;
-//	}
-
-//	public Course getCourse() {
-//		return courseSelection;
-//	}
-
-//	public boolean isCourseSelected() {
-//		return institutionSelection != null && courseSelection != null;
-//	}
-
-	public boolean hasAuthKey() {
-		return authKey != null && authKey.getKey() != null;
+	public boolean hasAuthResponse() {
+		return authResponse != null && authResponse.getKey() != null;
 	}
 
-	public AuthKey getAuthKey() {
-		return authKey;
+	public AuthResponse getAuthResponse() {
+		return authResponse;
 	}
 
-	public void setAuthKey(AuthKey authKey) {
-		this.authKey = authKey;
+	public void setAuthResponse(AuthResponse authResponse) {
+		this.authResponse = authResponse;
 		requestSave = true;
 	}
-
-//	public void setInstitutionSelection(Institution institutionSelection) {
-//		this.institutionSelection = institutionSelection;
-//		requestSave = true;
-//	}
-//
-//	public void setCourseSelection(Course courseSelection) {
-//		this.courseSelection = courseSelection;
-//		requestSave = true;
-//	}
 
 }
