@@ -82,13 +82,13 @@ public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
 	public void cycle() {
 		AccountModule am = (AccountModule) liveService
 				.getServiceModule(AccountModule.class);
-		AuthResponse authKey = am.getAuthResponse();
+		AuthResponse authResponse = am.getAuthResponse();
 		while (requestUpdate || liveService.getCards().size() == 0) {
-			if (authKey == null) {
+			if (authResponse == null) {
 				break;
 			}
 			Location loc = getLastLocation();
-			List<ECard> newCards = CardsQuery.query(authKey, loc);
+			List<ECard> newCards = CardsQuery.query(authResponse, loc);
 			if (newCards == null) {
 				break;
 			}

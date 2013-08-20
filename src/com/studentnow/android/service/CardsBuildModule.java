@@ -1,5 +1,7 @@
 package com.studentnow.android.service;
 
+import java.util.List;
+
 import org.studentnow.ECard;
 
 import com.fima.cardsui.views.CardUI;
@@ -57,15 +59,23 @@ public class CardsBuildModule implements ServiceModule {
 	}
 
 	public boolean renderCardsView(CardUI cardsView) {
-		if (mLiveService.getCards() == null
-				|| mLiveService.getCards().size() == 0) {
+		List<ECard> cards = mLiveService.getCards();
+		if (cards == null || cards.size() == 0) {
 			return false;
 		}
 
 		cardsView.clearCards();
 		cardsView.setSwipeable(false);
+		
+		long time = System.currentTimeMillis();
 
 		for (ECard ecard : mLiveService.getCards()) {
+			if (ecard.doesExpire() && ecard.getTimeExpires() < time) {
+				continue;
+			}
+			if (ecard.getTimeDisplays() > time) {
+				continue;
+			}
 			cardsView.addCard(new MyCard(ecard));
 		}
 

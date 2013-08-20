@@ -257,17 +257,18 @@ public class LoginActivity extends Activity {
 					mPasswordView.requestFocus();
 					break;
 
+				case Auth.response_existsemail:
 				case Auth.response_wrongpass:
 					mPasswordView
 							.setError(getString(R.string.error_incorrect_password));
 					mPasswordView.requestFocus();
 					break;
 
-				case Auth.response_existsemail:
-					mEmailView
-							.setError(getString(R.string.error_already_email));
-					mEmailView.requestFocus();
-					break;
+				// case Auth.response_existsemail:
+				// mEmailView
+				// .setError(getString(R.string.error_already_email));
+				// mEmailView.requestFocus();
+				// break;
 
 				default:
 					mPasswordView
