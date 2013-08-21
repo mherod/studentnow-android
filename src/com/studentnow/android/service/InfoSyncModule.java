@@ -124,6 +124,10 @@ public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
 		((LocationModule) liveService.getServiceModule(LocationModule.class))
 				.requestLocationUpdate(true);
 	}
+	
+	public void clearSyncedInfo() {
+		liveService.getCards().clear();
+	}
 
 	public void requestUpdate() {
 		this.requestUpdate = true;

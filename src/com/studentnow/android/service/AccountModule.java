@@ -16,8 +16,12 @@ public class AccountModule implements ServiceModule {
 	final String authKeyFile = "authkey.dat";
 
 	private boolean requestSave = false;
+	private boolean requestSyncUpdate = false;
+	private boolean requestAccountInvalidate = false;
 
 	private LiveService service = null;
+
+	private InfoSyncModule infoSync = null;
 
 	private AuthResponse authResponse = null;
 
@@ -31,6 +35,9 @@ public class AccountModule implements ServiceModule {
 
 	@Override
 	public void load() {
+		infoSync = ((InfoSyncModule) service
+				.getServiceModule(InfoSyncModule.class));
+
 		try {
 			authResponse = (AuthResponse) ObjectFiles.readObject(getFolder()
 					+ authKeyFile);
@@ -63,14 +70,23 @@ public class AccountModule implements ServiceModule {
 	@Override
 	public void cycle() {
 		while (requestSave) {
-			Log.i(TAG, "Saving new account data...");
+			Log.i(TAG, "[" + "requestSave" + "]");
+			Log.i(TAG, "Saving AuthResponse...");
 			if (save()) {
 				requestSave = false;
-				((InfoSyncModule) service
-						.getServiceModule(InfoSyncModule.class))
-						.requestUpdate();
 				Log.i(TAG, "... done");
 			}
+		}
+		while (requestAccountInvalidate) {
+			Log.i(TAG, "[" + "requestAccountInvalidate" + "]");
+			infoSync.clearSyncedInfo();
+			requestAccountInvalidate = false;
+			requestSyncUpdate = true;
+		}
+		while (requestSyncUpdate) {
+			Log.i(TAG, "[" + "requestSyncUpdate" + "]");
+			infoSync.requestUpdate();
+			requestSyncUpdate = false;
 		}
 	}
 
@@ -84,7 +100,9 @@ public class AccountModule implements ServiceModule {
 
 	public void setAuthResponse(AuthResponse authResponse) {
 		this.authResponse = authResponse;
+
 		requestSave = true;
+		requestAccountInvalidate = true;
 	}
 
 }
