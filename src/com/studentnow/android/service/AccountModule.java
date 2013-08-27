@@ -7,7 +7,7 @@ import org.studentnow.AuthResponse;
 
 import android.util.Log;
 
-import com.studentnow.android.ObjectFiles;
+import com.studentnow.android.io.ObjectFiles;
 
 public class AccountModule implements ServiceModule {
 
@@ -21,7 +21,7 @@ public class AccountModule implements ServiceModule {
 
 	private LiveService service = null;
 
-	private UserSyncModule infoSync = null;
+	private UserSyncModule syncModule = null;
 
 	private AuthResponse authResponse = null;
 
@@ -35,7 +35,7 @@ public class AccountModule implements ServiceModule {
 
 	@Override
 	public void load() {
-		infoSync = ((UserSyncModule) service
+		syncModule = ((UserSyncModule) service
 				.getServiceModule(UserSyncModule.class));
 
 		try {
@@ -79,13 +79,13 @@ public class AccountModule implements ServiceModule {
 		}
 		while (requestAccountInvalidate) {
 			Log.i(TAG, "[" + "requestAccountInvalidate" + "]");
-			infoSync.clearSyncedInfo();
+			syncModule.clearLocalData();
 			requestAccountInvalidate = false;
 			requestSyncUpdate = true;
 		}
 		while (requestSyncUpdate) {
 			Log.i(TAG, "[" + "requestSyncUpdate" + "]");
-			infoSync.requestUpdate();
+			syncModule.requestUpdate();
 			requestSyncUpdate = false;
 		}
 	}

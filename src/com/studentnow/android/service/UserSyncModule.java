@@ -132,7 +132,10 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				.requestLocationUpdate(true);
 	}
 
-	public void clearSyncedInfo() {
+	public void clearLocalData() {
+		
+		postFields.clear();
+		
 		mLiveService.getCards().clear();
 	}
 
