@@ -5,10 +5,17 @@ import java.util.List;
 
 import org.studentnow.ECard;
 
+import com.google.android.gcm.GCMRegistrar;
+import com.studentnow.android.__;
+
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 public class LiveService extends Service implements Runnable {
 
@@ -30,8 +37,25 @@ public class LiveService extends Service implements Runnable {
 
 	@Override
 	public void run() {
+		
+        registerReceiver(mHandleMessageReceiver,
+                new IntentFilter(__.DISPLAY_MESSAGE_ACTION));
+        
+        
+		GCMRegistrar.checkDevice(this);
+		final String regId = GCMRegistrar.getRegistrationId(this);
+
+		if (regId.equals("")) {
+			GCMRegistrar.register(this, __.SENDER_ID);
+		} else if (GCMRegistrar.isRegisteredOnServer(this)) {
+
+		}
+		
+		Log.d("sssssssssss   sssss", "dudd " + regId);
+
 		modules = new ArrayList<ServiceModule>();
 		modules.add(new AccountModule(this));
+		modules.add(new PushModule(this));
 		modules.add(new InfoSyncModule(this));
 		modules.add(new LocationModule(this));
 		// modules.add(new TravelModule(this));
@@ -55,6 +79,17 @@ public class LiveService extends Service implements Runnable {
 			}
 		}
 	}
+	
+
+
+    private final BroadcastReceiver mHandleMessageReceiver =
+            new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String newMessage = intent.getExtras().getString(__.EXTRA_MESSAGE);
+            Log.d("ssssssssssss", newMessage);
+        }
+    };
 
 	@Override
 	public void onDestroy() {

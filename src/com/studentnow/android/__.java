@@ -1,5 +1,8 @@
 package com.studentnow.android;
 
+import android.content.Context;
+import android.content.Intent;
+
 public class __ {
 
 	public static final String File_Settings = "settings";
@@ -19,5 +22,18 @@ public class __ {
 	public static final String Intent_ProgrammeUpdate = "studentnow.programmeupdate";
 
 	public static final String Intent_HomeLocPoll = "studentnow.homelocpoll";
+	
+	
+	public static final String SENDER_ID = "903913289319";
+
+	public static final String DISPLAY_MESSAGE_ACTION = "com.studentnow.android.DISPLAY_MESSAGE";
+
+	public static final String EXTRA_MESSAGE = "message";
+
+	public static void displayMessage(Context context, String message) {
+		Intent intent = new Intent(DISPLAY_MESSAGE_ACTION);
+		intent.putExtra(EXTRA_MESSAGE, message);
+		context.sendBroadcast(intent);
+	}
 
 }

@@ -29,7 +29,8 @@ public class CardActivity extends Activity implements Runnable {
 	private View mContentView;
 	private CardUI mCardsView;
 	private ProgressBar mLoadingView;
-	private int mShortAnimationDuration = 700;
+	
+	private static int mShortAnimationDuration = 700;
 
 	private Thread thread = new Thread(this);
 
@@ -37,7 +38,7 @@ public class CardActivity extends Activity implements Runnable {
 
 	private boolean updateCardsFlag = false;
 
-	private void crossfade(final View from, final View to) {
+	private static void crossfade(final View from, final View to) {
 		to.setAlpha(0f);
 		to.setVisibility(View.VISIBLE);
 		to.animate().alpha(1f).setDuration(mShortAnimationDuration)

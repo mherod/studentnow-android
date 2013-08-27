@@ -185,8 +185,8 @@ public class LocationCache extends SQLiteOpenHelper {
 			this.lat = lat;
 		}
 
-		public herod.gd.Location getLocation() {
-			return new herod.gd.Location(lat, lng);
+		public org.studentnow.gd.Location getLocation() {
+			return new org.studentnow.gd.Location(lat, lng);
 		}
 
 	}

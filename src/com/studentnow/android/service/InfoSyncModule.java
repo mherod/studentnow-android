@@ -1,7 +1,5 @@
 package com.studentnow.android.service;
 
-import herod.gd.Location;
-
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
@@ -9,6 +7,7 @@ import java.util.Random;
 import org.studentnow.AuthResponse;
 import org.studentnow.ECard;
 import org.studentnow.api.CardsQuery;
+import org.studentnow.gd.Location;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
