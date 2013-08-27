@@ -1,12 +1,13 @@
 package com.studentnow.android.service;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import org.studentnow.AuthResponse;
 import org.studentnow.ECard;
 import org.studentnow.api.CardsQuery;
+import org.studentnow.api.PostUserSetting;
 import org.studentnow.gd.Location;
 
 import android.app.AlarmManager;
@@ -19,11 +20,11 @@ import android.util.Log;
 
 import com.studentnow.android.__;
 
-public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
+public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	private final String TAG = this.getClass().getName();
 
-	private LiveService liveService;
+	private LiveService mLiveService;
 
 	private AlarmManager am;
 
@@ -31,8 +32,10 @@ public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	private boolean requestUpdate = false;
 
-	public InfoSyncModule(LiveService live) {
-		this.liveService = live;
+	private HashMap<String, String> postFields = new HashMap<String, String>();
+
+	public UserSyncModule(LiveService live) {
+		this.mLiveService = live;
 
 		this.partDailyIntent = PendingIntent.getBroadcast(live, 0, new Intent(
 				__.Intent_ProgrammeUpdate), 0);
@@ -49,7 +52,7 @@ public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	@Override
 	public void schedule() {
-		liveService.registerReceiver(this, new IntentFilter(
+		mLiveService.registerReceiver(this, new IntentFilter(
 				__.Intent_ProgrammeUpdate));
 
 		Random randomGenerator = new Random();
@@ -74,36 +77,41 @@ public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
 	public void cancel() {
 		am.cancel(partDailyIntent);
 		am.cancel(fullDailyIntent);
-		liveService.unregisterReceiver(this);
+		mLiveService.unregisterReceiver(this);
 	}
 
 	@Override
 	public void cycle() {
-		AccountModule am = (AccountModule) liveService
+		AccountModule mAccountModule = (AccountModule) mLiveService
 				.getServiceModule(AccountModule.class);
-		AuthResponse authResponse = am.getAuthResponse();
-		while (requestUpdate || liveService.getCards().size() == 0) {
-			if (authResponse == null) {
-				break;
+		if (mAccountModule != null && mAccountModule.hasAuthResponse()) {
+			if (!postFields.isEmpty()) {
+				if (PostUserSetting.post(mAccountModule.getAuthResponse(),
+						postFields)) {
+					postFields.clear();
+				}				
 			}
-			Location loc = getLastLocation();
-			List<ECard> newCards = CardsQuery.query(authResponse, loc);
-			if (newCards == null) {
-				break;
-			}
-			Log.d(TAG, "Updating cards with " + newCards.size() + " new");
-			liveService.getCards().clear();
-			liveService.getCards().addAll(newCards);
-			requestUpdate = false;
+			while (requestUpdate || mLiveService.getCards().size() == 0) {
+				Location loc = getLastLocation();
+				List<ECard> newCards = CardsQuery.query(
+						mAccountModule.getAuthResponse(), loc);
+				if (newCards == null) {
+					break;
+				}
+				Log.d(TAG, "Updating cards with " + newCards.size() + " new");
+				mLiveService.getCards().clear();
+				mLiveService.getCards().addAll(newCards);
+				requestUpdate = false;
 
-			((NotificationModule) liveService
-					.getServiceModule(NotificationModule.class))
-					.requestCardsRefresh();
+				((NotificationModule) mLiveService
+						.getServiceModule(NotificationModule.class))
+						.requestCardsRefresh();
+			}
 		}
 	}
 
 	private LocationModule getLocationModule() {
-		return ((LocationModule) liveService
+		return ((LocationModule) mLiveService
 				.getServiceModule(LocationModule.class));
 	}
 
@@ -120,12 +128,12 @@ public class InfoSyncModule extends BroadcastReceiver implements ServiceModule {
 	public void onReceive(Context c, Intent i) {
 		requestUpdate();
 
-		((LocationModule) liveService.getServiceModule(LocationModule.class))
+		((LocationModule) mLiveService.getServiceModule(LocationModule.class))
 				.requestLocationUpdate(true);
 	}
-	
+
 	public void clearSyncedInfo() {
-		liveService.getCards().clear();
+		mLiveService.getCards().clear();
 	}
 
 	public void requestUpdate() {

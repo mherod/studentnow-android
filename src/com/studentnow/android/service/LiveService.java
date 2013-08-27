@@ -56,7 +56,7 @@ public class LiveService extends Service implements Runnable {
 		modules = new ArrayList<ServiceModule>();
 		modules.add(new AccountModule(this));
 		modules.add(new PushModule(this));
-		modules.add(new InfoSyncModule(this));
+		modules.add(new UserSyncModule(this));
 		modules.add(new LocationModule(this));
 		// modules.add(new TravelModule(this));
 		modules.add(new CardsBuildModule(this));

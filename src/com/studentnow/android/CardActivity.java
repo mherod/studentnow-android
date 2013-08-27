@@ -1,7 +1,5 @@
 package com.studentnow.android;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,40 +15,24 @@ import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.service.AccountModule;
 import com.studentnow.android.service.CardsBuildModule;
 import com.studentnow.android.service.LiveService;
-import com.studentnow.android.service.InfoSyncModule;
+import com.studentnow.android.service.UserSyncModule;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CardActivity extends Activity implements Runnable {
 
-	// private final String TAG = CardActivity.class.getName();
+	private final String TAG = CardActivity.class.getName();
 
 	private View mContentView;
 	private CardUI mCardsView;
 	private ProgressBar mLoadingView;
-	
-	private static int mShortAnimationDuration = 700;
 
 	private Thread thread = new Thread(this);
 
 	private LiveServiceLink serviceLink = null;
 
 	private boolean updateCardsFlag = false;
-
-	private static void crossfade(final View from, final View to) {
-		to.setAlpha(0f);
-		to.setVisibility(View.VISIBLE);
-		to.animate().alpha(1f).setDuration(mShortAnimationDuration)
-				.setListener(null);
-		from.animate().alpha(0f).setDuration(mShortAnimationDuration)
-				.setListener(new AnimatorListenerAdapter() {
-					@Override
-					public void onAnimationEnd(Animator animation) {
-						from.setVisibility(View.GONE);
-					}
-				});
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -105,7 +87,8 @@ public class CardActivity extends Activity implements Runnable {
 		switch (item.getItemId()) {
 
 		case R.id.action_setup:
-			openSetup();
+			// openSetup();
+			startActivity(new Intent(this, CourseSelectActivity.class));
 			return true;
 
 		case R.id.action_settings:
@@ -113,8 +96,8 @@ public class CardActivity extends Activity implements Runnable {
 			return true;
 
 		case R.id.action_refresh:
-			((InfoSyncModule) getLiveService().getServiceModule(
-					InfoSyncModule.class)).requestUpdate();
+			((UserSyncModule) getLiveService().getServiceModule(
+					UserSyncModule.class)).requestUpdate();
 			toast("Refreshing...");
 			return true;
 
@@ -189,7 +172,7 @@ public class CardActivity extends Activity implements Runnable {
 		@Override
 		public void run() {
 			if (isLoadingView()) {
-				crossfade(mLoadingView, mContentView);
+				ViewHelpers.crossfade(mLoadingView, mContentView);
 			}
 		}
 
@@ -199,7 +182,7 @@ public class CardActivity extends Activity implements Runnable {
 		@Override
 		public void run() {
 			if (!isLoadingView()) {
-				crossfade(mContentView, mLoadingView);
+				ViewHelpers.crossfade(mContentView, mLoadingView);
 			}
 		}
 	};

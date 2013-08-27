@@ -21,7 +21,7 @@ public class AccountModule implements ServiceModule {
 
 	private LiveService service = null;
 
-	private InfoSyncModule infoSync = null;
+	private UserSyncModule infoSync = null;
 
 	private AuthResponse authResponse = null;
 
@@ -35,8 +35,8 @@ public class AccountModule implements ServiceModule {
 
 	@Override
 	public void load() {
-		infoSync = ((InfoSyncModule) service
-				.getServiceModule(InfoSyncModule.class));
+		infoSync = ((UserSyncModule) service
+				.getServiceModule(UserSyncModule.class));
 
 		try {
 			authResponse = (AuthResponse) ObjectFiles.readObject(getFolder()
