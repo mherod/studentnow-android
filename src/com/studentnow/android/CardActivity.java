@@ -23,7 +23,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CardActivity extends Activity implements Runnable {
 
-//	private final String TAG = CardActivity.class.getName();
+	// private final String TAG = CardActivity.class.getName();
 
 	private View mContentView;
 	private CardUI mCardsView;
@@ -149,14 +149,14 @@ public class CardActivity extends Activity implements Runnable {
 	private Runnable updateCardsRunnable = new Runnable() {
 		@Override
 		public void run() {
-			LiveService l;
-			if ((l = getLiveService()) == null) {
+			LiveService l = getLiveService();
+			if (l == null) {
 				updateCardsFlag = true;
 				return;
 			}
 			AccountModule am = (AccountModule) l
 					.getServiceModule(AccountModule.class);
-			if (!am.hasAuthResponse() /* || !am.isCourseSelected() */) {
+			if (!am.hasAuthResponse()) {
 				openSetup();
 			} else {
 				updateCardsFlag = !updateCardsView();

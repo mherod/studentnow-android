@@ -7,7 +7,7 @@ import org.studentnow.AuthResponse;
 
 import android.util.Log;
 
-import com.studentnow.android.io.ObjectFiles;
+import com.studentnow.android.io.OFiles;
 
 public class AccountModule implements ServiceModule {
 
@@ -39,7 +39,7 @@ public class AccountModule implements ServiceModule {
 				.getServiceModule(UserSyncModule.class));
 
 		try {
-			authResponse = (AuthResponse) ObjectFiles.readObject(getFolder()
+			authResponse = (AuthResponse) OFiles.readObject(getFolder()
 					+ authKeyFile);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -51,7 +51,7 @@ public class AccountModule implements ServiceModule {
 	@Override
 	public boolean save() {
 		try {
-			ObjectFiles.saveObject(authResponse, getFolder() + authKeyFile);
+			OFiles.saveObject(authResponse, getFolder() + authKeyFile);
 		} catch (IOException e) {
 			return false;
 		}

@@ -1,12 +1,19 @@
 package com.studentnow.android.io;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class ObjectFiles {
+import com.studentnow.android.service.LiveService;
+
+public class OFiles {
+
+	public static String getFolder(LiveService mLiveService) {
+		return mLiveService.getFilesDir() + File.separator;
+	}
 
 	public static boolean saveObject(Object o, String file) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);

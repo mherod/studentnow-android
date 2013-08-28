@@ -2,6 +2,6 @@ package com.studentnow.android;
 
 public class Static {
 	
-	public static String GCM_REGID = "";
+	public static String GCM_REG_ID = "";
 
 }

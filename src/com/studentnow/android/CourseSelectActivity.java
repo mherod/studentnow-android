@@ -138,7 +138,7 @@ public class CourseSelectActivity extends Activity implements
 		UserSyncModule syncModule = (UserSyncModule) mLiveService
 				.getServiceModule(UserSyncModule.class);
 
-		syncModule.put(Fields.programmeid, selection.getProgrammeID());
+		syncModule.put(Fields.PROGRAMME_ID, selection.getProgrammeID());
 
 		finish();
 	}
@@ -214,11 +214,13 @@ public class CourseSelectActivity extends Activity implements
 	};
 
 	private void showResultsList() {
-		ViewHelpers.crossfade(progressSpinner, resultsListView);
+		resultsListView.setVisibility(View.VISIBLE);
+		progressSpinner.setVisibility(View.GONE);
 	}
 
 	private void hideResultsList() {
-		ViewHelpers.crossfade(resultsListView, progressSpinner);
+		resultsListView.setVisibility(View.GONE);
+		progressSpinner.setVisibility(View.VISIBLE);
 	}
 
 	class ResultsListAdapter extends BaseAdapter {

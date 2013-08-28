@@ -23,7 +23,7 @@ public class PushModule implements ServiceModule {
 	}
 
 	public static boolean gcmRegSet() {
-		return !Static.GCM_REGID.equals("");
+		return !Static.GCM_REG_ID.equals("");
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class PushModule implements ServiceModule {
 		// GCMRegistrar.checkDevice(service);
 		// GCMRegistrar.checkManifest(service);
 
-		Static.GCM_REGID = GCMRegistrar.getRegistrationId(mLiveService);
+		Static.GCM_REG_ID = GCMRegistrar.getRegistrationId(mLiveService);
 
 		if (!gcmRegSet()) {
 
@@ -46,7 +46,7 @@ public class PushModule implements ServiceModule {
 			requestGcmRegSubmission = true;
 
 		} else {
-			Log.i("PushModule", "Already registered - " + Static.GCM_REGID);
+			Log.i("PushModule", "Already registered - " + Static.GCM_REG_ID);
 		}
 
 	}
@@ -76,7 +76,7 @@ public class PushModule implements ServiceModule {
 			requestGcmRegSubmission = false;
 
 			HashMap<String, String> fields = new HashMap<String, String>();
-			fields.put(Fields.gcmregid, Static.GCM_REGID);
+			fields.put(Fields.GCM_REG_ID, Static.GCM_REG_ID);
 			PostUserSetting.post(mAccountModule.getAuthResponse(), fields);
 			
 			Log.d("PushModule", "updated account with reg id");

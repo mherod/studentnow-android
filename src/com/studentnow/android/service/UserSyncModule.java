@@ -1,5 +1,6 @@
 package com.studentnow.android.service;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import android.content.IntentFilter;
 import android.util.Log;
 
 import com.studentnow.android.__;
+import com.studentnow.android.io.OFiles;
 
 public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
@@ -31,7 +33,7 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	private PendingIntent partDailyIntent, fullDailyIntent;
 
 	private boolean requestUpdate = false;
-	
+
 	private boolean requestCardRefresh = false;
 
 	private HashMap<String, String> postFields = new HashMap<String, String>();
@@ -47,9 +49,30 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 		this.am = (AlarmManager) live.getSystemService(Context.ALARM_SERVICE);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void load() {
+		String folder = OFiles.getFolder(mLiveService);
+		try {
+			List<ECard> loadCards = (List<ECard>) OFiles.readObject(folder
+					+ sCardsFile);
+			mLiveService.getCards().clear();
+			mLiveService.getCards().addAll(loadCards);
 
+			Log.i(TAG, "Recovered " + loadCards.size()
+					+ " cards from previous service session");
+		} catch (IOException e) {
+		} catch (ClassNotFoundException e) {
+		}
+		try {
+			postFields = (HashMap<String, String>) OFiles.readObject(folder
+					+ sPostFieldsFile);
+
+			Log.i(TAG, "Recovered " + postFields.size()
+					+ " waiting field syncs from previous service session");
+		} catch (IOException e) {
+		} catch (ClassNotFoundException e) {
+		}
 	}
 
 	@Override
@@ -91,9 +114,9 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				if (PostUserSetting.post(mAccountModule.getAuthResponse(),
 						postFields)) {
 					postFields.clear();
-					
+
 					requestUpdate = true;
-				}				
+				}
 			}
 			while (requestUpdate || mLiveService.getCards().size() == 0) {
 				Location loc = getLastLocation();
@@ -102,12 +125,12 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				if (newCards == null) {
 					break;
 				}
-				
+
 				Log.d(TAG, "Updating cards with " + newCards.size() + " new");
 				mLiveService.getCards().clear();
 				mLiveService.getCards().addAll(newCards);
-				
-				requestUpdate = false;				
+
+				requestUpdate = false;
 				requestCardRefresh = true;
 			}
 		}
@@ -146,10 +169,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	}
 
 	public void clearLocalData() {
-		
-		postFields.clear();
-		
 		mLiveService.getCards().clear();
+		postFields.clear();
 	}
 
 	public void requestUpdate() {
@@ -158,7 +179,17 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	@Override
 	public boolean save() {
+		try {
+			String folder = OFiles.getFolder(mLiveService);
+			OFiles.saveObject(postFields, folder + sPostFieldsFile);
+			OFiles.saveObject(mLiveService.getCards(), folder + sCardsFile);
+		} catch (IOException e) {
+			return false;
+		}
 		return true;
 	}
+
+	final static String sCardsFile = "cards.dat";
+	final static String sPostFieldsFile = "postfields.dat";
 
 }
