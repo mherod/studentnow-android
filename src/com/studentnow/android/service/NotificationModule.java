@@ -42,7 +42,6 @@ public class NotificationModule extends BroadcastReceiver implements
 
 	@Override
 	public void onReceive(Context c, Intent i) {
-		Log.d(TAG, "onReceive");
 		requestNextSessionNotification();
 	}
 
@@ -71,9 +70,9 @@ public class NotificationModule extends BroadcastReceiver implements
 
 	@Override
 	public void cycle() {
-//		if (requestNextSessionNotification) {
-//			requestNextSessionNotification = false;
-//			Log.d(TAG, "requestNextSessionNotification");
+		if (requestNextSessionNotification) {
+			requestNextSessionNotification = false;
+			Log.d(TAG, "requestNextSessionNotification");
 //
 //			Timetable tt;
 //			Session nextSession;
@@ -99,7 +98,7 @@ public class NotificationModule extends BroadcastReceiver implements
 //				}
 //			}
 //
-//		}
+		}
 		if (requestCardRefresh) {
 			requestCardRefresh = false;
 			liveService.sendBroadcast(new Intent(__.Intent_CardUpdate));

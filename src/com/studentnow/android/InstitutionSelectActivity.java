@@ -13,7 +13,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -153,11 +152,11 @@ public class InstitutionSelectActivity extends Activity implements Runnable,
 		class ViewHolder {
 		}
 
-		private LayoutInflater mInflater;
+//		private LayoutInflater mInflater;
 
 		public InstitutionListAdapter(Context context) {
 			this.context = context;
-			mInflater = LayoutInflater.from(context);
+//			mInflater = LayoutInflater.from(context);
 		}
 
 		@Override

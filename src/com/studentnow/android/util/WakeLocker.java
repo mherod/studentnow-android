@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.PowerManager;
 
+@SuppressLint("Wakelock")
 public abstract class WakeLocker {
 	private static PowerManager.WakeLock wakeLock;
 

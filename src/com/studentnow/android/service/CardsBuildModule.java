@@ -11,7 +11,7 @@ import com.studentnow.android.MyCard;
 
 public class CardsBuildModule implements ServiceModule {
 
-	private final String TAG = LiveService.class.getName();
+//	private final String TAG = LiveService.class.getName();
 
 	private final LiveService mLiveService;
 

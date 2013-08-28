@@ -23,7 +23,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CardActivity extends Activity implements Runnable {
 
-	private final String TAG = CardActivity.class.getName();
+//	private final String TAG = CardActivity.class.getName();
 
 	private View mContentView;
 	private CardUI mCardsView;
