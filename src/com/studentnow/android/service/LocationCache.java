@@ -1,5 +1,7 @@
 package com.studentnow.android.service;
 
+import org.studentnow.gd.Location;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -185,8 +187,8 @@ public class LocationCache extends SQLiteOpenHelper {
 			this.lat = lat;
 		}
 
-		public org.studentnow.gd.Location getLocation() {
-			return new org.studentnow.gd.Location(lat, lng);
+		public Location getLocation() {
+			return new Location(lat, lng);
 		}
 
 	}

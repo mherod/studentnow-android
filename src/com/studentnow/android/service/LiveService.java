@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.studentnow.ECard;
 
-import com.google.android.gcm.GCMRegistrar;
-import com.studentnow.android.__;
-
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,22 +12,24 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
+
+import com.google.android.gcm.GCMRegistrar;
+import com.studentnow.android.__;
 
 public class LiveService extends Service implements Runnable {
 
 	// private final String TAG = LiveService.class.getName();
 
-	private final Thread serviceThread = new Thread(this);
+	private final Thread mServiceThread = new Thread(this);
 
 	private List<ServiceModule> modules;
-
+	
 	private List<ECard> cards = new ArrayList<ECard>();
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startid) {
-		if (serviceThread.isAlive() == false) {
-			serviceThread.start();
+		if (mServiceThread.isAlive() == false) {
+			mServiceThread.start();
 		}
 		return START_STICKY;
 	}
@@ -50,15 +49,12 @@ public class LiveService extends Service implements Runnable {
 		} else if (GCMRegistrar.isRegisteredOnServer(this)) {
 
 		}
-		
-		Log.d("sssssssssss   sssss", "dudd " + regId);
 
 		modules = new ArrayList<ServiceModule>();
 		modules.add(new AccountModule(this));
-		modules.add(new PushModule(this));
 		modules.add(new UserSyncModule(this));
+		modules.add(new PushModule(this));
 		modules.add(new LocationModule(this));
-		// modules.add(new TravelModule(this));
 		modules.add(new CardsBuildModule(this));
 		modules.add(new NotificationModule(this));
 
@@ -68,6 +64,8 @@ public class LiveService extends Service implements Runnable {
 		for (ServiceModule m : modules) {
 			m.schedule();
 		}
+		
+		int saveTicker = 0;	
 		while (true) {
 			for (ServiceModule m : modules) {
 				try {
@@ -75,6 +73,19 @@ public class LiveService extends Service implements Runnable {
 					Thread.sleep(250);
 				} catch (Exception e) {
 					e.printStackTrace();
+				}
+			}
+			if (saveTicker++ > 30) {
+				saveTicker = 0;
+			}
+			if (saveTicker == 0) {
+				for (ServiceModule m : modules) {
+					try {
+						m.save();
+						Thread.sleep(50);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -86,8 +97,7 @@ public class LiveService extends Service implements Runnable {
             new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String newMessage = intent.getExtras().getString(__.EXTRA_MESSAGE);
-            Log.d("ssssssssssss", newMessage);
+//            String newMessage = intent.getExtras().getString(__.EXTRA_MESSAGE);
         }
     };
 

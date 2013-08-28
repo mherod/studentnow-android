@@ -68,20 +68,16 @@ public class PushModule implements ServiceModule {
 
 	@Override
 	public void cycle() {
-
-		if (mAccountModule == null) {
-			// wait
-		} else if (requestGcmRegSubmission && gcmRegSet()
-				&& mAccountModule.hasAuthResponse()) {
+		if (mAccountModule != null && mAccountModule.hasAuthResponse()
+				&& requestGcmRegSubmission && gcmRegSet()) {
 			requestGcmRegSubmission = false;
 
-			HashMap<String, String> fields = new HashMap<String, String>();
-			fields.put(Fields.GCM_REG_ID, Static.GCM_REG_ID);
-			PostUserSetting.post(mAccountModule.getAuthResponse(), fields);
-			
-			Log.d("PushModule", "updated account with reg id");
-		}
+			UserSyncModule mUserSyncModule = (UserSyncModule) mLiveService
+					.getServiceModule(UserSyncModule.class);
+			mUserSyncModule.put(Fields.GCM_REG_ID, Static.GCM_REG_ID);
 
+			Log.d("PushModule", "Updated account with reg id");
+		}
 	}
 
 }
