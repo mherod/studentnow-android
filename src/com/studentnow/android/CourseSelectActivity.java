@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.studentnow.AuthResponse;
 import org.studentnow.Course;
-import org.studentnow.Institution;
+import org.studentnow.Fields;
 import org.studentnow.api.CourseQuery;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.Menu;
@@ -27,10 +27,15 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.studentnow.android.service.AccountModule;
+import com.studentnow.android.service.LiveService;
+import com.studentnow.android.service.UserSyncModule;
+import com.studentnow.android.util.ViewHelpers;
+
 public class CourseSelectActivity extends Activity implements
 		SearchView.OnQueryTextListener, Runnable, OnItemClickListener {
 
-	private Institution searchInstitution = null;
+	private LiveServiceLink serviceLink = null;
 
 	private boolean opened = false;
 
@@ -43,20 +48,20 @@ public class CourseSelectActivity extends Activity implements
 
 	private String[] searchQuery = new String[] { "", "-" };
 
-	private List<Course> _results;
+	private List<Course> mResults;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Bundle bundle = getIntent().getExtras();
-		searchInstitution = (Institution) bundle.getSerializable("inst");
+		// Bundle bundle = getIntent().getExtras();
+		// searchInstitution = (Institution) bundle.getSerializable("inst");
 
 		setContentView(R.layout.activity_list_loading);
 
 		progressSpinner = (ProgressBar) findViewById(R.id.waitingProgressBar);
 
-		_results = new ArrayList<Course>();
+		mResults = new ArrayList<Course>();
 
 		resultsListView = (ListView) findViewById(R.id.resultsListView);
 		resultsListAdapter = new ResultsListAdapter(this);
@@ -65,6 +70,8 @@ public class CourseSelectActivity extends Activity implements
 
 		registerForContextMenu(resultsListView);
 
+		serviceLink = new LiveServiceLink();
+
 		searchThread = new Thread(this);
 		searchThread.start();
 
@@ -72,12 +79,19 @@ public class CourseSelectActivity extends Activity implements
 
 	public void onResume() {
 		super.onResume();
+		serviceLink.start(this);
 		opened = true;
 	}
 
 	public void onPause() {
 		super.onPause();
 		opened = false;
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		serviceLink.stop(this);
 	}
 
 	@Override
@@ -113,14 +127,19 @@ public class CourseSelectActivity extends Activity implements
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view,
 			final int position, long id) {
-		Course selection = _results.get(position);
+		Course selection = mResults.get(position);
 		if (selection == null) {
 			return;
 		}
 		Toast.makeText(this, "Selected: " + selection.getName(),
 				Toast.LENGTH_SHORT).show();
-		setResult(RESULT_OK,
-				new Intent().putExtra("course", (Course) selection));
+
+		LiveService mLiveService = serviceLink.getLiveService();
+		UserSyncModule syncModule = (UserSyncModule) mLiveService
+				.getServiceModule(UserSyncModule.class);
+
+		syncModule.put(Fields.programmeid, selection.getProgrammeID());
+
 		finish();
 	}
 
@@ -128,25 +147,41 @@ public class CourseSelectActivity extends Activity implements
 	public void run() {
 		boolean retry = false;
 		while (true) {
-			if (retry || !searchQuery[1].equals(searchQuery[0])) {
+			if (serviceLink == null || serviceLink.getLiveService() == null) {
+
+			} else if (retry || !searchQuery[1].equals(searchQuery[0])) {
 				runOnUiThread(showProgress);
 
 				retry = false;
 				searchQuery[1] = searchQuery[0];
 
-				_results.clear();
+				mResults.clear();
 
-				List<Course> resCourses = CourseQuery.query(
-						searchInstitution.getCode(), searchQuery[1]);
-
-				if (resCourses == null) {
-					retry = true;
-				} else {
-					_results.addAll(resCourses);
-					runOnUiThread(notifyDataSetChanged);					
+				LiveService mLiveService = serviceLink.getLiveService();
+				AccountModule mAccountModule = null;
+				mAccountModule = (AccountModule) mLiveService
+						.getServiceModule(AccountModule.class);
+				AuthResponse authResponse = mAccountModule.getAuthResponse();
+				
+				List<Course> responseCourses = null;
+				
+				if (authResponse != null) {
+					responseCourses = CourseQuery.query(authResponse,
+							searchQuery[1]);
 				}
-			} else if (progressSpinner.getVisibility() == View.VISIBLE) {
-				runOnUiThread(hideProgress);
+				if (responseCourses == null) {
+				
+					retry = true;
+					
+				} else {
+					
+					mResults.addAll(responseCourses);
+					
+					runOnUiThread(notifyDataSetChanged);
+				
+				}
+			} else if (progressSpinner.getVisibility() == View.VISIBLE) {		
+				runOnUiThread(hideProgress);	
 			}
 			do {
 				try {
@@ -179,13 +214,11 @@ public class CourseSelectActivity extends Activity implements
 	};
 
 	private void showResultsList() {
-		progressSpinner.setVisibility(View.GONE);
-		resultsListView.setVisibility(View.VISIBLE);
+		ViewHelpers.crossfade(progressSpinner, resultsListView);
 	}
 
 	private void hideResultsList() {
-		progressSpinner.setVisibility(View.VISIBLE);
-		resultsListView.setVisibility(View.GONE);
+		ViewHelpers.crossfade(resultsListView, progressSpinner);
 	}
 
 	class ResultsListAdapter extends BaseAdapter {
@@ -201,7 +234,7 @@ public class CourseSelectActivity extends Activity implements
 
 		public ResultsListAdapter(Context context) {
 			this.context = context;
-			r = Collections.synchronizedList(_results);
+			r = Collections.synchronizedList(mResults);
 			// mInflater = LayoutInflater.from(context);
 		}
 

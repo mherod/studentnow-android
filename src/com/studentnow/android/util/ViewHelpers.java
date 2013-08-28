@@ -1,4 +1,4 @@
-package com.studentnow.android;
+package com.studentnow.android.util;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

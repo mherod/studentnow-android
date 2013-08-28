@@ -16,6 +16,7 @@ import com.studentnow.android.service.AccountModule;
 import com.studentnow.android.service.CardsBuildModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.UserSyncModule;
+import com.studentnow.android.util.ViewHelpers;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;

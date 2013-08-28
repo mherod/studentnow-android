@@ -31,6 +31,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	private PendingIntent partDailyIntent, fullDailyIntent;
 
 	private boolean requestUpdate = false;
+	
+	private boolean requestCardRefresh = false;
 
 	private HashMap<String, String> postFields = new HashMap<String, String>();
 
@@ -89,6 +91,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				if (PostUserSetting.post(mAccountModule.getAuthResponse(),
 						postFields)) {
 					postFields.clear();
+					
+					requestUpdate = true;
 				}				
 			}
 			while (requestUpdate || mLiveService.getCards().size() == 0) {
@@ -98,15 +102,20 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				if (newCards == null) {
 					break;
 				}
+				
 				Log.d(TAG, "Updating cards with " + newCards.size() + " new");
 				mLiveService.getCards().clear();
 				mLiveService.getCards().addAll(newCards);
-				requestUpdate = false;
-
-				((NotificationModule) mLiveService
-						.getServiceModule(NotificationModule.class))
-						.requestCardsRefresh();
+				
+				requestUpdate = false;				
+				requestCardRefresh = true;
 			}
+		}
+		if (requestCardRefresh) {
+			requestCardRefresh = false;
+			((NotificationModule) mLiveService
+					.getServiceModule(NotificationModule.class))
+					.requestCardsRefresh();
 		}
 	}
 
@@ -122,6 +131,10 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	public void put(String field, String value) {
+		postFields.put(field, value);
 	}
 
 	@Override

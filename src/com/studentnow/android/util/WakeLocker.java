@@ -1,4 +1,4 @@
-package com.studentnow.android;
+package com.studentnow.android.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

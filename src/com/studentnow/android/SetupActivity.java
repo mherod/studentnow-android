@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.fima.cardsui.views.CardUI;
+import com.studentnow.android.util.DepthPageTransformer;
 
 public class SetupActivity extends FragmentActivity implements
 		ViewPager.OnPageChangeListener {
