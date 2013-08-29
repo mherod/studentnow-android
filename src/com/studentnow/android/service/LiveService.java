@@ -12,18 +12,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import com.google.android.gcm.GCMRegistrar;
 import com.studentnow.android.__;
 
 public class LiveService extends Service implements Runnable {
 
-	// private final String TAG = LiveService.class.getName();
+	private final String TAG = LiveService.class.getName();
 
 	private final Thread mServiceThread = new Thread(this);
 
 	private List<ServiceModule> modules;
-	
+
 	private List<ECard> cards = new ArrayList<ECard>();
 
 	@Override
@@ -36,11 +37,10 @@ public class LiveService extends Service implements Runnable {
 
 	@Override
 	public void run() {
-		
-        registerReceiver(mHandleMessageReceiver,
-                new IntentFilter(__.DISPLAY_MESSAGE_ACTION));
-        
-        
+
+		registerReceiver(mHandleMessageReceiver, new IntentFilter(
+				__.DISPLAY_MESSAGE_ACTION));
+
 		GCMRegistrar.checkDevice(this);
 		final String regId = GCMRegistrar.getRegistrationId(this);
 
@@ -55,7 +55,7 @@ public class LiveService extends Service implements Runnable {
 		modules.add(new UserSyncModule(this));
 		modules.add(new PushModule(this));
 		modules.add(new LocationModule(this));
-		modules.add(new CardsBuildModule(this));
+		modules.add(new CardModule(this));
 		modules.add(new NotificationModule(this));
 
 		for (ServiceModule m : modules) {
@@ -64,15 +64,23 @@ public class LiveService extends Service implements Runnable {
 		for (ServiceModule m : modules) {
 			m.schedule();
 		}
-		
-		int saveTicker = 0;	
+
+		long t = 0, tt = 0;
+
+		int saveTicker = 0;
 		while (true) {
 			for (ServiceModule m : modules) {
 				try {
+					t = System.currentTimeMillis();
 					m.cycle();
-					Thread.sleep(250);
+					tt = System.currentTimeMillis() - t;
+					Thread.sleep(200);
 				} catch (Exception e) {
 					e.printStackTrace();
+				}
+				if (tt > 100 ) {
+					Log.w(TAG, "Cycle for " + m.getClass().getSimpleName()
+							+ " took " + tt + "ms");
 				}
 			}
 			if (saveTicker++ > 30) {
@@ -90,16 +98,14 @@ public class LiveService extends Service implements Runnable {
 			}
 		}
 	}
-	
 
-
-    private final BroadcastReceiver mHandleMessageReceiver =
-            new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-//            String newMessage = intent.getExtras().getString(__.EXTRA_MESSAGE);
-        }
-    };
+	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			// String newMessage =
+			// intent.getExtras().getString(__.EXTRA_MESSAGE);
+		}
+	};
 
 	@Override
 	public void onDestroy() {

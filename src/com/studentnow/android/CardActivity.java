@@ -13,7 +13,7 @@ import android.widget.ProgressBar;
 
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.service.AccountModule;
-import com.studentnow.android.service.CardsBuildModule;
+import com.studentnow.android.service.CardModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.UserSyncModule;
 import com.studentnow.android.util.ViewHelpers;
@@ -117,12 +117,12 @@ public class CardActivity extends Activity implements Runnable {
 	}
 
 	private boolean updateCardsView() {
-		LiveService l;
-		if ((l = getLiveService()) == null) {
+		LiveService l = getLiveService();
+		if (l == null) {
 			return false;
 		}
-		CardsBuildModule cvbm = (CardsBuildModule) l
-				.getServiceModule(CardsBuildModule.class);
+		CardModule cvbm = (CardModule) l
+				.getServiceModule(CardModule.class);
 		boolean cards = cvbm.renderCardsView(mCardsView);
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
