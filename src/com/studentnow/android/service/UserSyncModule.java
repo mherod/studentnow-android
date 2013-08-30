@@ -24,7 +24,7 @@ import com.studentnow.android.io.OFiles;
 
 public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
-	final static String TAG = UserSyncModule.class.getName();
+	final static String TAG = UserSyncModule.class.getSimpleName();
 
 	final static String sCardsFile = "cards.dat";
 	final static String sPostFieldsFile = "postfields.dat";
@@ -122,8 +122,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 			if (!postFields.isEmpty()) {
 				if (PostUserSetting.post(mAccountModule.getAuthResponse(),
 						postFields)) {
+					Log.d(TAG, "Submitted " + postFields.size() + " values");
 					postFields.clear();
-
 					requestUpdate = true;
 				}
 				requestSave = true;

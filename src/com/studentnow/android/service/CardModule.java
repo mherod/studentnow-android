@@ -5,10 +5,14 @@ import java.util.List;
 
 import org.studentnow.ECard;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.MyCard;
+import com.studentnow.android.R;
+import com.studentnow.android.__;
 import com.studentnow.android.util.ConnectionDetector;
 
 public class CardModule implements ServiceModule {
@@ -39,24 +43,10 @@ public class CardModule implements ServiceModule {
 	public void cancel() {
 	}
 
-	public void requestUpdate() {
-		requestCardViewUpdate = true;
-	}
-
 	@Override
 	public void cycle() {
-
 		maintainLocalCards();
-
-		if (requestCardViewUpdate) {
-			requestCardViewUpdate = false;
-
-			((NotificationModule) mLiveService
-					.getServiceModule(NotificationModule.class))
-					.requestCardsRefresh();
-
-		}
-
+		processRequests();
 	}
 
 	@Override
@@ -64,7 +54,18 @@ public class CardModule implements ServiceModule {
 		return true;
 	}
 
-	public void maintainLocalCards() {
+	public void requestUpdate() {
+		requestCardViewUpdate = true;
+	}
+
+	private void processRequests() {
+		if (requestCardViewUpdate) {
+			requestCardViewUpdate = false;
+			updateActivityCards(mLiveService);
+		}
+	}
+
+	private void maintainLocalCards() {
 		int removedCount = 0;
 		Iterator<ECard> iter = mLiveService.getCards().iterator();
 		long time = System.currentTimeMillis();
@@ -84,26 +85,21 @@ public class CardModule implements ServiceModule {
 	public boolean renderCardsView(CardUI cardsView) {
 		List<ECard> cards = mLiveService.getCards();
 		if (cards == null || cards.size() == 0) {
-			if (mConnectionDetector.isConnectedOnline()) {
-				// No cards available with connection so let's trigger a refresh
-				return false;
-			} else {
-				// No cards and no internet - we need the user to get online
+			if (!mConnectionDetector.isConnectedOnline()) {
+				// No cards and no Internet - we need the user to get online
 				cardsView.setSwipeable(false);
 				MyCard myCard = new MyCard(
-						"No internet connection",
-						"Student Now has been unable to connect to the cloud and so is unable to display your latest information");
+						mLiveService.getString(R.string.card_offline_title),
+						mLiveService.getString(R.string.card_offline_content));
 				cardsView.addCard(myCard);
 				return true;
 			}
+			return false;
 		}
-
-		long time = System.currentTimeMillis();
-
 		cardsView.clearCards();
 		cardsView.setSwipeable(false);
-
-		for (ECard ecard : mLiveService.getCards()) {
+		long time = System.currentTimeMillis();
+		for (ECard ecard : cards) {
 			if (ecard.getTimeDisplays() > time) {
 				continue;
 			}
@@ -111,9 +107,11 @@ public class CardModule implements ServiceModule {
 			myCard.setSwipeable(ecard.isSwipable());
 			cardsView.addCard(myCard);
 		}
-
 		cardsView.refresh();
-
 		return true;
+	}
+
+	public static void updateActivityCards(Context context) {
+		context.sendBroadcast(new Intent(__.Intent_CardUpdate));
 	}
 }

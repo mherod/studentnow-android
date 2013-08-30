@@ -1,9 +1,6 @@
 package com.studentnow.android.service;
 
-import java.util.HashMap;
-
 import org.studentnow.Fields;
-import org.studentnow.api.PostUserSetting;
 
 import android.util.Log;
 
@@ -13,6 +10,8 @@ import com.studentnow.android.__;
 
 public class PushModule implements ServiceModule {
 
+	final static String TAG = PushModule.class.getSimpleName();
+
 	private LiveService mLiveService = null;
 	private AccountModule mAccountModule = null;
 
@@ -20,10 +19,6 @@ public class PushModule implements ServiceModule {
 
 	public PushModule(LiveService liveService) {
 		this.mLiveService = liveService;
-	}
-
-	public static boolean gcmRegSet() {
-		return !Static.GCM_REG_ID.equals("");
 	}
 
 	@Override
@@ -39,14 +34,14 @@ public class PushModule implements ServiceModule {
 
 		if (!gcmRegSet()) {
 
-			Log.i("PushModule", "Requesting registration");
+			Log.i(TAG, "Requesting registration");
 
 			GCMRegistrar.register(mLiveService, __.SENDER_ID);
 
 			requestGcmRegSubmission = true;
 
 		} else {
-			Log.i("PushModule", "Already registered - " + Static.GCM_REG_ID);
+			Log.i(TAG, "Already registered - " + Static.GCM_REG_ID);
 		}
 
 	}
@@ -76,8 +71,12 @@ public class PushModule implements ServiceModule {
 					.getServiceModule(UserSyncModule.class);
 			mUserSyncModule.put(Fields.GCM_REG_ID, Static.GCM_REG_ID);
 
-			Log.d("PushModule", "Updated account with reg id");
+			Log.d(TAG, "Updated account with " + Fields.GCM_REG_ID);
 		}
+	}
+
+	public static boolean gcmRegSet() {
+		return !Static.GCM_REG_ID.equals("");
 	}
 
 }
