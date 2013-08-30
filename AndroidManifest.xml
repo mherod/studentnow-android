@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.studentnow.android"
     android:versionCode="1"
-    android:versionName="0.0.1" >
+    android:versionName="0.0.1-dev" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -13,6 +13,7 @@
         android:label="Recieves Student Now push"
         android:protectionLevel="signature" />
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />

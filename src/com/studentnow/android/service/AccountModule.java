@@ -1,6 +1,5 @@
 package com.studentnow.android.service;
 
-import java.io.File;
 import java.io.IOException;
 
 import org.studentnow.AuthResponse;
@@ -11,7 +10,7 @@ import com.studentnow.android.io.OFiles;
 
 public class AccountModule implements ServiceModule {
 
-	final String TAG = AccountModule.class.getName();
+	final String TAG = AccountModule.class.getSimpleName();
 
 	final String authKeyFile = "authkey.dat";
 
@@ -19,40 +18,39 @@ public class AccountModule implements ServiceModule {
 	private boolean requestSyncUpdate = false;
 	private boolean requestAccountInvalidate = false;
 
-	private LiveService service = null;
+	private LiveService mLiveService = null;
 
 	private UserSyncModule syncModule = null;
 
 	private AuthResponse authResponse = null;
 
 	public AccountModule(LiveService liveService) {
-		this.service = liveService;
-	}
-
-	private String getFolder() {
-		return service.getFilesDir() + File.separator;
+		this.mLiveService = liveService;
 	}
 
 	@Override
 	public void load() {
-		syncModule = ((UserSyncModule) service
+		syncModule = ((UserSyncModule) mLiveService
 				.getServiceModule(UserSyncModule.class));
 
+		final String folder = OFiles.getFolder(mLiveService);
 		try {
-			authResponse = (AuthResponse) OFiles.readObject(getFolder()
+			authResponse = (AuthResponse) OFiles.readObject(folder
 					+ authKeyFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			Log.i(TAG, "Recovered authResponse");
+		} catch (Exception e) {
+			Log.i(TAG, "Error recovering authResponse " + e.toString());
 		}
 	}
 
 	@Override
 	public boolean save() {
+		final String folder = OFiles.getFolder(mLiveService);
 		try {
-			OFiles.saveObject(authResponse, getFolder() + authKeyFile);
+			OFiles.saveObject(authResponse, folder + authKeyFile);
+			Log.i(TAG, "Saved authResponse");
 		} catch (IOException e) {
+			Log.i(TAG, "Error saving authResponse: " + e.toString());
 			return false;
 		}
 		return true;
@@ -71,10 +69,8 @@ public class AccountModule implements ServiceModule {
 	public void cycle() {
 		while (requestSave) {
 			Log.i(TAG, "[" + "requestSave" + "]");
-			Log.i(TAG, "Saving AuthResponse...");
 			if (save()) {
 				requestSave = false;
-				Log.i(TAG, "... done");
 			}
 		}
 		while (requestAccountInvalidate) {
@@ -98,9 +94,8 @@ public class AccountModule implements ServiceModule {
 		return authResponse;
 	}
 
-	public void setAuthResponse(AuthResponse authResponse) {
-		this.authResponse = authResponse;
-
+	public void setAuthResponse(AuthResponse pAuthResponse) {
+		authResponse = pAuthResponse;
 		requestSave = true;
 		requestAccountInvalidate = true;
 	}

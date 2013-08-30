@@ -52,6 +52,8 @@
     <string name="hello_world">Hello world!</string>
     <string name="ok">OK</string>
     
+    <string name="account">Account</string>
+    
     <string name="card_offline_title">No internet connection</string>
     <string name="card_offline_content">Student Now has been unable to connect to the cloud and so is unable to display your latest information</string>
     

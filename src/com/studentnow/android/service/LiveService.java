@@ -109,6 +109,7 @@ public class LiveService extends Service implements Runnable {
 
 	@Override
 	public void onDestroy() {
+		Log.i(TAG, "Service shutting down");
 		for (ServiceModule m : modules) {
 			m.save();
 		}

@@ -171,7 +171,7 @@ public class SetupActivity extends FragmentActivity implements
 			case 0:
 				return getString(R.string.welcome).toUpperCase(l);
 			case 1:
-				return getString(R.string.setup_title_selectuni).toUpperCase(l);
+				return getString(R.string.account).toUpperCase(l);
 			case 2:
 				return getString(R.string.select_course).toUpperCase(l);
 			}
