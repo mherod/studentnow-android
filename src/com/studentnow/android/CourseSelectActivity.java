@@ -30,7 +30,6 @@ import android.widget.Toast;
 import com.studentnow.android.service.AccountModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.UserSyncModule;
-import com.studentnow.android.util.ViewHelpers;
 
 public class CourseSelectActivity extends Activity implements
 		SearchView.OnQueryTextListener, Runnable, OnItemClickListener {
