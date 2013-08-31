@@ -24,6 +24,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 public class CardActivity extends Activity implements Runnable {
 
 	// private final String TAG = CardActivity.class.getName();
+	
+	private Activity activity = this;
 
 	private View mContentView;
 	private CardUI mCardsView;
@@ -99,7 +101,7 @@ public class CardActivity extends Activity implements Runnable {
 		case R.id.action_refresh:
 			((UserSyncModule) getLiveService().getServiceModule(
 					UserSyncModule.class)).requestUpdate();
-			toast("Refreshing...");
+			Crouton.makeText(activity, "Refreshing...", Style.INFO).show();
 			return true;
 
 		case R.id.action_credits:
@@ -191,16 +193,8 @@ public class CardActivity extends Activity implements Runnable {
 	private BroadcastReceiver cardUpdateReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			toast("Updating cards...");
+			Crouton.makeText(activity, "Cards update", Style.INFO).show();
 			updateCardsFlag = true;
 		}
 	};
-
-	private void toast(String s) {
-		// Toast.makeText(getApplicationContext(), s,
-		// Toast.LENGTH_SHORT).show();
-
-		Crouton.makeText(this, s, Style.INFO).show();
-	}
-
 }

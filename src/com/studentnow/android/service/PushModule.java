@@ -1,12 +1,12 @@
 package com.studentnow.android.service;
 
 import org.studentnow.Static.Fields;
+import org.studentnow.api.PlayServices;
 
 import android.util.Log;
 
 import com.google.android.gcm.GCMRegistrar;
 import com.studentnow.android.Static;
-import com.studentnow.android.__;
 
 public class PushModule implements ServiceModule {
 
@@ -36,7 +36,7 @@ public class PushModule implements ServiceModule {
 
 			Log.i(TAG, "Requesting registration");
 
-			GCMRegistrar.register(mLiveService, __.SENDER_ID);
+			GCMRegistrar.register(mLiveService, PlayServices.SENDER_ID);
 
 			requestGcmRegSubmission = true;
 

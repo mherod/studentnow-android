@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.studentnow.ECard;
+import org.studentnow.api.PlayServices;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -45,7 +46,7 @@ public class LiveService extends Service implements Runnable {
 		final String regId = GCMRegistrar.getRegistrationId(this);
 
 		if (regId.equals("")) {
-			GCMRegistrar.register(this, __.SENDER_ID);
+			GCMRegistrar.register(this, PlayServices.SENDER_ID);
 		} else if (GCMRegistrar.isRegisteredOnServer(this)) {
 
 		}
@@ -78,7 +79,7 @@ public class LiveService extends Service implements Runnable {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				if (tt > 100 ) {
+				if (tt > 100) {
 					Log.w(TAG, "Cycle for " + m.getClass().getSimpleName()
 							+ " took " + tt + "ms");
 				}
