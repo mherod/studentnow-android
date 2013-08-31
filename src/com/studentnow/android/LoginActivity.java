@@ -1,6 +1,7 @@
 package com.studentnow.android;
 
 import org.studentnow.AuthResponse;
+import org.studentnow.Static.Responses;
 import org.studentnow.api.Auth;
 
 import android.animation.Animator;
@@ -229,7 +230,7 @@ public class LoginActivity extends Activity {
 
 			if (success) {
 				switch (authResponse.getStatus()) {
-				case Auth.response_ok:
+				case Responses.OK:
 					AccountModule am = (AccountModule) live
 							.getServiceModule(AccountModule.class);
 					am.setAuthResponse(authResponse);
@@ -239,26 +240,26 @@ public class LoginActivity extends Activity {
 					finish();
 					break;
 
-				case Auth.response_error:
+				case Responses.ERROR:
 					mPasswordView
 							.setError(getString(R.string.error_field_error));
 					mPasswordView.requestFocus();
 					break;
 
-				case Auth.response_bademail:
+				case Responses.EMAIL_BAD:
 					mEmailView
 							.setError(getString(R.string.error_invalid_email));
 					mEmailView.requestFocus();
 					break;
 
-				case Auth.response_badpass:
+				case Responses.PASSWORD_BAD:
 					mPasswordView
 							.setError(getString(R.string.error_invalid_password));
 					mPasswordView.requestFocus();
 					break;
 
-				case Auth.response_existsemail:
-				case Auth.response_wrongpass:
+				case Responses.EMAIL_ALREADY_EXISTS:
+				case Responses.PASSWORD_INCORRECT:
 					mPasswordView
 							.setError(getString(R.string.error_incorrect_password));
 					mPasswordView.requestFocus();

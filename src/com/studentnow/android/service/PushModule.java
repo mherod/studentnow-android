@@ -1,6 +1,6 @@
 package com.studentnow.android.service;
 
-import org.studentnow.Fields;
+import org.studentnow.Static.Fields;
 
 import android.util.Log;
 

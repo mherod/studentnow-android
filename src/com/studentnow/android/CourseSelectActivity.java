@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.studentnow.AuthResponse;
 import org.studentnow.Course;
-import org.studentnow.Fields;
+import org.studentnow.Static.Fields;
 import org.studentnow.api.CourseQuery;
 
 import android.app.Activity;
