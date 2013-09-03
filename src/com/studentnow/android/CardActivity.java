@@ -125,7 +125,7 @@ public class CardActivity extends Activity implements Runnable {
 		}
 		CardModule cvbm = (CardModule) l
 				.getServiceModule(CardModule.class);
-		boolean cards = cvbm.renderCardsView(mCardsView);
+		boolean cards = cvbm.renderCardsView(this, mCardsView);
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
 	}
@@ -193,7 +193,7 @@ public class CardActivity extends Activity implements Runnable {
 	private BroadcastReceiver cardUpdateReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Crouton.makeText(activity, "Cards update", Style.INFO).show();
+			Crouton.makeText(activity, "Refreshing cards...", Style.INFO).show();
 			updateCardsFlag = true;
 		}
 	};

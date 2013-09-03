@@ -10,26 +10,26 @@ import android.widget.TextView;
 
 import com.fima.cardsui.objects.Card;
 
-public class MyImageCard extends Card {
+public class MyMapCard extends Card {
 
 	private Bitmap bitmap = null;
 
-	public MyImageCard(String title, int image) {
+	public MyMapCard(String title, int image) {
 		super(title, image);
 	}
 
-	public MyImageCard(String title, String desc, int image) {
+	public MyMapCard(String title, String desc, int image) {
 		super(title, desc, image);
 	}
 
-	public MyImageCard(String title, String desc, Bitmap bitmap) {
+	public MyMapCard(String title, String desc, Bitmap bitmap) {
 		super(title, desc, 0);
 		this.bitmap = bitmap;
 	}
 
 	@Override
 	public View getCardContent(Context context) {
-		View view = LayoutInflater.from(context).inflate(R.layout.card_image,
+		View view = LayoutInflater.from(context).inflate(R.layout.card_map,
 				null);
 		((TextView) view.findViewById(R.id.title)).setText(title);
 		((TextView) view.findViewById(R.id.description)).setText(desc);

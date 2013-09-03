@@ -59,5 +59,6 @@
     
     <string name="login">Login</string>
     <string name="login_explain">We need to know which university you go to in order to retrieve the correct information.</string>
+    <string name="map">Map</string>
 
 </resources>

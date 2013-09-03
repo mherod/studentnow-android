@@ -41,8 +41,19 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:ellipsize="end"
-            android:maxLines="10"
+            android:maxLines="5"
             android:text="text" />
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:contentDescription="@string/map"
+        android:scaleType="centerCrop"
+        android:src="@drawable/example_picture" />
 
 </LinearLayout>

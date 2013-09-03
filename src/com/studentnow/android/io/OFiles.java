@@ -7,12 +7,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import com.studentnow.android.service.LiveService;
+import android.content.Context;
 
 public class OFiles {
 
-	public static String getFolder(LiveService mLiveService) {
-		return mLiveService.getFilesDir() + File.separator;
+	public static String getFolder(Context context) {
+		return context.getFilesDir() + File.separator;
 	}
 
 	public static boolean saveObject(Object o, String file) throws IOException {
@@ -24,7 +24,8 @@ public class OFiles {
 		return true;
 	}
 
-	public static Object readObject(String file) throws IOException, ClassNotFoundException {
+	public static Object readObject(String file) throws IOException,
+			ClassNotFoundException {
 		Object o = null;
 		FileInputStream fileIn = new FileInputStream(file);
 		ObjectInputStream in = new ObjectInputStream(fileIn);

@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 
 import com.studentnow.android.CardActivity;
 import com.studentnow.android.__;
+import org.studentnow.Static.TimeMillis;;
 
 public class NotificationModule extends BroadcastReceiver implements
 		ServiceModule {
@@ -51,7 +52,7 @@ public class NotificationModule extends BroadcastReceiver implements
 				__.Intent_Notification));
 
 		am.setRepeating(AlarmManager.RTC, Calendar.getInstance()
-				.getTimeInMillis() + 10 * 1000, 60 * 1000, notificationIntent);
+				.getTimeInMillis() + TimeMillis.SECS_10, TimeMillis.MINS_1, notificationIntent);
 	}
 
 	@Override
@@ -59,8 +60,6 @@ public class NotificationModule extends BroadcastReceiver implements
 		am.cancel(notificationIntent);
 		mLiveService.unregisterReceiver(this);
 	}
-
-	final int MINS30 = 30 * 60 * 1000;
 
 	@Override
 	public void cycle() {
