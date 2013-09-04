@@ -16,6 +16,7 @@ import com.studentnow.android.service.AccountModule;
 import com.studentnow.android.service.CardModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.UserSyncModule;
+import com.studentnow.android.util.ConnectionDetector;
 import com.studentnow.android.util.ViewHelpers;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -24,8 +25,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 public class CardActivity extends Activity implements Runnable {
 
 	// private final String TAG = CardActivity.class.getName();
-	
-	private Activity activity = this;
 
 	private View mContentView;
 	private CardUI mCardsView;
@@ -36,6 +35,7 @@ public class CardActivity extends Activity implements Runnable {
 	private LiveServiceLink serviceLink = null;
 
 	private boolean updateCardsFlag = false;
+	private boolean connectionFailFlag = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,7 @@ public class CardActivity extends Activity implements Runnable {
 		registerReceiver(cardUpdateReceiver, new IntentFilter(
 				__.Intent_CardUpdate));
 		updateCardsFlag = true;
+		connectionFailFlag = true;
 		try {
 			thread.start();
 		} catch (RuntimeException re) {
@@ -90,7 +91,6 @@ public class CardActivity extends Activity implements Runnable {
 		switch (item.getItemId()) {
 
 		case R.id.action_setup:
-			// openSetup();
 			startActivity(new Intent(this, CourseSelectActivity.class));
 			return true;
 
@@ -101,7 +101,7 @@ public class CardActivity extends Activity implements Runnable {
 		case R.id.action_refresh:
 			((UserSyncModule) getLiveService().getServiceModule(
 					UserSyncModule.class)).requestUpdate();
-			Crouton.makeText(activity, "Refreshing...", Style.INFO).show();
+			Crouton.makeText(this, "Refreshing...", Style.INFO).show();
 			return true;
 
 		case R.id.action_credits:
@@ -123,8 +123,7 @@ public class CardActivity extends Activity implements Runnable {
 		if (l == null) {
 			return false;
 		}
-		CardModule cvbm = (CardModule) l
-				.getServiceModule(CardModule.class);
+		CardModule cvbm = (CardModule) l.getServiceModule(CardModule.class);
 		boolean cards = cvbm.renderCardsView(this, mCardsView);
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
@@ -160,9 +159,9 @@ public class CardActivity extends Activity implements Runnable {
 					.getServiceModule(AccountModule.class);
 			if (!am.hasAuthResponse()) {
 				openSetup();
-			} else {
-				updateCardsFlag = !updateCardsView();
+				return;
 			}
+			updateCardsFlag = !updateCardsView();
 		}
 	};
 
@@ -193,7 +192,8 @@ public class CardActivity extends Activity implements Runnable {
 	private BroadcastReceiver cardUpdateReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Crouton.makeText(activity, "Refreshing cards...", Style.INFO).show();
+			Crouton.makeText(CardActivity.this, "Refreshing cards...",
+					Style.INFO).show();
 			updateCardsFlag = true;
 		}
 	};

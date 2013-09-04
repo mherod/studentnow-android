@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.studentnow.ECard;
-import org.studentnow.api.PlayServices;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -15,16 +14,15 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.google.android.gcm.GCMRegistrar;
 import com.studentnow.android.__;
 
 public class LiveService extends Service implements Runnable {
 
-	private final String TAG = LiveService.class.getName();
+	private final String TAG = LiveService.class.getSimpleName();
 
 	private final Thread mServiceThread = new Thread(this);
 
-	private List<ServiceModule> modules;
+	private List<ServiceModule> modules = new ArrayList<ServiceModule>();
 
 	private List<ECard> cards = new ArrayList<ECard>();
 
@@ -42,16 +40,6 @@ public class LiveService extends Service implements Runnable {
 		registerReceiver(mHandleMessageReceiver, new IntentFilter(
 				__.DISPLAY_MESSAGE_ACTION));
 
-		GCMRegistrar.checkDevice(this);
-		final String regId = GCMRegistrar.getRegistrationId(this);
-
-		if (regId.equals("")) {
-			GCMRegistrar.register(this, PlayServices.SENDER_ID);
-		} else if (GCMRegistrar.isRegisteredOnServer(this)) {
-
-		}
-
-		modules = new ArrayList<ServiceModule>();
 		modules.add(new AccountModule(this));
 		modules.add(new UserSyncModule(this));
 		modules.add(new PushModule(this));
@@ -73,9 +61,11 @@ public class LiveService extends Service implements Runnable {
 			for (ServiceModule m : modules) {
 				try {
 					t = System.currentTimeMillis();
+					Log.i(TAG, "Cycling module " + m.getClass().getSimpleName()
+							+ "...");
 					m.cycle();
 					tt = System.currentTimeMillis() - t;
-					Thread.sleep(200);
+					Thread.sleep(75);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -88,6 +78,7 @@ public class LiveService extends Service implements Runnable {
 				saveTicker = 0;
 			}
 			if (saveTicker == 0) {
+				Log.i(TAG, "Saving module states...");
 				for (ServiceModule m : modules) {
 					try {
 						m.save();
@@ -96,6 +87,7 @@ public class LiveService extends Service implements Runnable {
 						e.printStackTrace();
 					}
 				}
+				Log.i(TAG, "... done!");
 			}
 		}
 	}
@@ -125,9 +117,11 @@ public class LiveService extends Service implements Runnable {
 	}
 
 	public ServiceModule getServiceModule(@SuppressWarnings("rawtypes") Class c) {
-		for (ServiceModule m : modules)
-			if (m.getClass().equals(c))
+		for (ServiceModule m : modules) {
+			if (m.getClass().equals(c)) {
 				return m;
+			}
+		}
 		return null;
 	}
 

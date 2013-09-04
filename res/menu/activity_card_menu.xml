@@ -1,33 +1,24 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <item 
-        android:id="@+id/action_setup" 
-        android:title="@string/setupmenu" 
-        android:enabled="true" 
-        android:visible="true" 
-        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_setup"
+        android:enabled="true"
+        android:showAsAction="never"
+        android:title="@string/setupmenu"
+        android:visible="true"/>
+    <item android:id="@+id/action_refresh" android:enabled="true" android:showAsAction="never" android:title="@string/refresh" android:visible="true" /><item
+        android:id="@+id/action_settings"
+        android:enabled="true"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_settings"
+        android:visible="true"/>
     
     <item
-        android:id="@+id/action_settings"
-        android:title="@string/title_activity_settings" 
-        android:enabled="false" 
-        android:visible="false"
+        android:id="@+id/action_credits"
+        android:enabled="true"
         android:showAsAction="never"
-        android:orderInCategory="100" />
-    
-    <item 
-        android:id="@+id/action_refresh" 
-        android:title="@string/refresh" 
-        android:enabled="true" 
-        android:visible="true" 
-        android:showAsAction="never"/>
-    
-    <item 
-        android:id="@+id/action_credits" 
-        android:title="@string/title_activity_credit" 
-        android:visible="true" 
-        android:enabled="true" 
-        android:showAsAction="never" />
-    
+        android:title="@string/title_activity_credit"
+        android:visible="false"/>
 
 </menu>

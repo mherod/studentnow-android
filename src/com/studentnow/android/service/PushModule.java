@@ -24,6 +24,15 @@ public class PushModule implements ServiceModule {
 	@Override
 	public void load() {
 
+		GCMRegistrar.checkDevice(mLiveService);
+		final String regId = GCMRegistrar.getRegistrationId(mLiveService);
+
+		if (regId.equals("")) {
+			GCMRegistrar.register(mLiveService, PlayServices.SENDER_ID);
+		} else if (GCMRegistrar.isRegisteredOnServer(mLiveService)) {
+
+		}
+
 		mAccountModule = (AccountModule) mLiveService
 				.getServiceModule(AccountModule.class);
 

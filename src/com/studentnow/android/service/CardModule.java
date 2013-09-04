@@ -21,6 +21,7 @@ import android.view.View.OnClickListener;
 import com.fima.cardsui.objects.Card;
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.MyCard;
+import com.studentnow.android.MyImageCard;
 import com.studentnow.android.MyMapCard;
 import com.studentnow.android.R;
 import com.studentnow.android.__;
@@ -36,7 +37,7 @@ public class CardModule implements ServiceModule {
 
 	private boolean requestCardViewUpdate = false;
 
-	private static HashMap<String, Bitmap> mapBitmaps = new HashMap<String, Bitmap>();
+	private static HashMap<String, Bitmap> bitmaps = new HashMap<String, Bitmap>();
 
 	public CardModule(LiveService liveService) {
 		mLiveService = liveService;
@@ -91,9 +92,22 @@ public class CardModule implements ServiceModule {
 		for (ECard ecard : cards) {
 			if (ecard.hasMapCoords()) {
 				String coords = ecard.getMapCoords();
-				if (!mapBitmaps.containsKey(coords)) {
+				if (!bitmaps.containsKey(coords)) {
 					Bitmap b = getGoogleMapThumbnail(coords);
-					mapBitmaps.put(coords, b);
+					bitmaps.put(coords, b);
+				}
+			}
+			if (ecard.hasImageSrc()) {
+				String url = ecard.getImageSrc();
+				if (!bitmaps.containsKey(url)) {
+					URL url2 = null;
+					try {
+						url2 = new URL(url);
+					} catch (Exception e) {
+						continue;
+					}
+					Bitmap b = bitmapFromURL(url2);
+					bitmaps.put(url, b);
 				}
 			}
 		}
@@ -107,7 +121,13 @@ public class CardModule implements ServiceModule {
 		for (ECard ecard : cards) {
 			if (ecard.hasMapCoords()) {
 				String coords = ecard.getMapCoords();
-				if (!mapBitmaps.containsKey(coords)) {
+				if (!bitmaps.containsKey(coords)) {
+					return false;
+				}
+			}
+			if (ecard.hasImageSrc()) {
+				String url = ecard.getImageSrc();
+				if (!bitmaps.containsKey(url)) {
 					return false;
 				}
 			}
@@ -147,9 +167,12 @@ public class CardModule implements ServiceModule {
 				continue;
 			}
 			Card card = null;
-			if (ecard.hasMapCoords()) {
+			if (ecard.hasImageSrc()) {
+				card = new MyImageCard(ecard.getTitle(), ecard.getDesc(),
+						bitmaps.get(ecard.getImageSrc()));
+			} else if (ecard.hasMapCoords()) {
 				card = new MyMapCard(ecard.getTitle(), ecard.getDesc(),
-						mapBitmaps.get(ecard.getMapCoords()));
+						bitmaps.get(ecard.getMapCoords()));
 			} else {
 				card = new MyCard(ecard);
 			}
@@ -195,8 +218,6 @@ public class CardModule implements ServiceModule {
 	}
 
 	public static Bitmap getGoogleMapThumbnail(String coords) {
-		Bitmap bmp = null;
-		InputStream in = null;
 		try {
 			// URL url = new URL(
 			// "https://maps.google.com/maps/api/staticmap?center="
@@ -204,6 +225,17 @@ public class CardModule implements ServiceModule {
 			URL url = new URL("https://maps.googleapis.com/maps/api/staticmap"
 					+ "?markers=color:red|" + coords + "" + "&zoom=17"
 					+ "&size=600x350" + "&sensor=false");
+			return bitmapFromURL(url);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Bitmap bitmapFromURL(URL url) {
+		Bitmap bmp = null;
+		InputStream in = null;
+		try {
 			in = url.openStream();
 			bmp = BitmapFactory.decodeStream(in);
 			in.close();
