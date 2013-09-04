@@ -16,7 +16,6 @@ import com.studentnow.android.service.AccountModule;
 import com.studentnow.android.service.CardModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.UserSyncModule;
-import com.studentnow.android.util.ConnectionDetector;
 import com.studentnow.android.util.ViewHelpers;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
@@ -35,7 +34,8 @@ public class CardActivity extends Activity implements Runnable {
 	private LiveServiceLink serviceLink = null;
 
 	private boolean updateCardsFlag = false;
-	private boolean connectionFailFlag = false;
+
+	private boolean isLoadingView = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,8 @@ public class CardActivity extends Activity implements Runnable {
 		mContentView = findViewById(R.id.content);
 		mCardsView = (CardUI) findViewById(R.id.cards);
 
+		isLoadingView = mLoadingView.getVisibility() == View.VISIBLE;
+
 		serviceLink = new LiveServiceLink();
 	}
 
@@ -53,10 +55,13 @@ public class CardActivity extends Activity implements Runnable {
 	public void onResume() {
 		super.onResume();
 		serviceLink.start(this);
+
 		registerReceiver(cardUpdateReceiver, new IntentFilter(
 				__.Intent_CardUpdate));
+		registerReceiver(closeAppReceiver, new IntentFilter(
+				__.Intent_CloseApp));
+
 		updateCardsFlag = true;
-		connectionFailFlag = true;
 		try {
 			thread.start();
 		} catch (RuntimeException re) {
@@ -65,7 +70,6 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	protected void onPause() {
-		unregisterReceiver(cardUpdateReceiver);
 		super.onPause();
 	}
 
@@ -76,8 +80,10 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	protected void onDestroy() {
-		super.onDestroy();
+		unregisterReceiver(cardUpdateReceiver);
+		unregisterReceiver(closeAppReceiver);
 		serviceLink.stop(this);
+		super.onDestroy();
 	}
 
 	@Override
@@ -166,8 +172,7 @@ public class CardActivity extends Activity implements Runnable {
 	};
 
 	private boolean isLoadingView() {
-		return mLoadingView.getVisibility() == View.VISIBLE
-				&& mContentView.getVisibility() == View.GONE;
+		return isLoadingView;
 	}
 
 	final Runnable showCards = new Runnable() {
@@ -175,9 +180,9 @@ public class CardActivity extends Activity implements Runnable {
 		public void run() {
 			if (isLoadingView()) {
 				ViewHelpers.crossfade(mLoadingView, mContentView);
+				isLoadingView = false;
 			}
 		}
-
 	};
 
 	final Runnable showProgress = new Runnable() {
@@ -185,6 +190,7 @@ public class CardActivity extends Activity implements Runnable {
 		public void run() {
 			if (!isLoadingView()) {
 				ViewHelpers.crossfade(mContentView, mLoadingView);
+				isLoadingView = true;
 			}
 		}
 	};
@@ -192,9 +198,20 @@ public class CardActivity extends Activity implements Runnable {
 	private BroadcastReceiver cardUpdateReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Crouton.makeText(CardActivity.this, "Refreshing cards...",
-					Style.INFO).show();
+			Crouton.makeText(CardActivity.this, "Cards updated", Style.CONFIRM)
+					.show();
 			updateCardsFlag = true;
 		}
 	};
+
+	private BroadcastReceiver closeAppReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			CardActivity.this.finish();
+		}
+	};
+	
+	public static void finishAll(Context context) {
+		context.sendBroadcast(new Intent(__.Intent_CloseApp));
+	}
 }

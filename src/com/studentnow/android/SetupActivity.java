@@ -2,6 +2,7 @@ package com.studentnow.android;
 
 import java.util.Locale;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -89,9 +90,11 @@ public class SetupActivity extends FragmentActivity implements
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			//NavUtils.navigateUpFromSameTask(this);
+			CardActivity.finishAll(this);
 			finish();
 			return true;
 		case R.id.action_exit:
+			CardActivity.finishAll(this);
 			finish();
 			return true;
 		}
@@ -115,6 +118,7 @@ public class SetupActivity extends FragmentActivity implements
 			mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1);
 			return;
 		}
+		CardActivity.finishAll(this);
 		super.onBackPressed();
 	}
 

@@ -20,6 +20,7 @@ import android.view.View.OnClickListener;
 
 import com.fima.cardsui.objects.Card;
 import com.fima.cardsui.views.CardUI;
+import com.studentnow.android.CourseSelectActivity;
 import com.studentnow.android.MyCard;
 import com.studentnow.android.MyImageCard;
 import com.studentnow.android.MyMapCard;
@@ -194,6 +195,14 @@ public class CardModule implements ServiceModule {
 						intent.setClassName("com.google.android.apps.maps",
 								"com.google.android.maps.MapsActivity");
 						context.startActivity(intent);
+					}
+				});
+			} else if (ecard.isType(ECard.SELECT_COURSE)) {
+				card.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						context.startActivity(new Intent(context,
+								CourseSelectActivity.class));
 					}
 				});
 			}

@@ -1,5 +1,6 @@
 package com.studentnow.android.service;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.studentnow.AuthResponse;
@@ -46,6 +47,10 @@ public class AccountModule implements ServiceModule {
 	@Override
 	public boolean save() {
 		final String folder = OFiles.getFolder(mLiveService);
+		if (!hasAuthResponse()) {
+			new File(folder + authKeyFile).delete();
+			return true;
+		}
 		try {
 			OFiles.saveObject(authResponse, folder + authKeyFile);
 			Log.i(TAG, "Saved authResponse");

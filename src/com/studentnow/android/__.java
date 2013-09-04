@@ -14,10 +14,11 @@ public class __ {
 
 	public static final String Tag_CardActivity = "CardActivity";
 
-	public static final String Intent_CardUpdate = "studentnow.cardupdate";
+	public static final String Intent_CardUpdate = "com.studentnow.android.CARD_UPDATE";
 	public static final String Intent_Notification = "studentnow.notification";
 	public static final String Intent_ProgrammeUpdate = "studentnow.programmeupdate";
 	public static final String Intent_HomeLocPoll = "studentnow.homelocpoll";
+	public static final String Intent_CloseApp = "com.studentnow.android.CLOSE_APP";
 
 	public static final String DISPLAY_MESSAGE_ACTION = "com.studentnow.android.DISPLAY_MESSAGE";
 
