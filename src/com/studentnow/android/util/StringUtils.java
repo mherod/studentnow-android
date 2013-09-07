@@ -26,4 +26,11 @@ public class StringUtils {
 		return s.toUpperCase(l);
 	}
 
+	public static String shorten(String s, int length) {
+		if (s.length() > length) {
+			return s.substring(0, length - 1) + "…";
+		}
+		return s;
+	}
+
 }

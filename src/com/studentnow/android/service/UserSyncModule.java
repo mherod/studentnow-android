@@ -31,6 +31,7 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	private LiveService mLiveService;
 	private LocationModule mLocationModule;
+	private AccountModule mAccountModule;
 
 	private AlarmManager mAlarmManager;
 
@@ -59,6 +60,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	public void load() {
 		mLocationModule = (LocationModule) mLiveService
 				.getServiceModule(LocationModule.class);
+		mAccountModule = (AccountModule) mLiveService
+				.getServiceModule(AccountModule.class);
 
 		String folder = OFiles.getFolder(mLiveService);
 		try {
@@ -100,7 +103,6 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 		mAlarmManager
 				.setInexactRepeating(AlarmManager.RTC, c.getTimeInMillis(),
 						AlarmManager.INTERVAL_DAY, fullDailyIntent);
-
 		mAlarmManager.setInexactRepeating(AlarmManager.RTC,
 				System.currentTimeMillis() + (AlarmManager.INTERVAL_DAY / 4),
 				(AlarmManager.INTERVAL_DAY / 6), partDailyIntent);
@@ -116,8 +118,6 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	@Override
 	public void cycle() {
-		AccountModule mAccountModule = (AccountModule) mLiveService
-				.getServiceModule(AccountModule.class);
 		if (mAccountModule != null && mAccountModule.hasAuthResponse()) {
 			if (!postFields.isEmpty()) {
 				if (PostUserSetting.post(mAccountModule.getAuthResponse(),
@@ -129,20 +129,22 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				requestSave = true;
 			}
 			while (requestUpdate || mLiveService.getCards().size() == 0) {
-				Location loc = getLastLocation();
-				List<ECard> newCards = CardsQuery.query(
-						mAccountModule.getAuthResponse(), loc);
-				if (newCards == null) {
-					break;
+				Thread updateCardsThread = new Thread(updateCardsRunnable);
+				updateCardsThread.start();
+				long start = System.currentTimeMillis();
+				while (updateCardsThread.isAlive()) {
+					try {
+						if ((System.currentTimeMillis() - start) > 10000) {
+							updateCardsThread.interrupt();
+							start = System.currentTimeMillis();
+							Log.e(TAG, "Interrupting jammed updateCardsThread");
+						}
+						Thread.sleep(10);
+					} catch (Exception e) {
+						Log.e(TAG, e.toString());
+						continue;
+					}
 				}
-
-				Log.d(TAG, "Updating cards with " + newCards.size() + " new");
-				mLiveService.getCards().clear();
-				mLiveService.getCards().addAll(newCards);
-
-				requestUpdate = false;
-				requestCardRefresh = true;
-				requestSave = true;
 			}
 		}
 		if (requestCardRefresh) {
@@ -156,6 +158,26 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 			save();
 		}
 	}
+
+	private Runnable updateCardsRunnable = new Runnable() {
+		@Override
+		public void run() {
+			Location loc = getLastLocation();
+			List<ECard> newCards = null;
+			do {
+				newCards = CardsQuery.query(mAccountModule.getAuthResponse(),
+						loc);
+			} while (newCards == null);
+
+			Log.d(TAG, "Updating cards with " + newCards.size() + " new");
+			mLiveService.getCards().clear();
+			mLiveService.getCards().addAll(newCards);
+
+			requestUpdate = false;
+			requestCardRefresh = true;
+			requestSave = true;
+		}
+	};
 
 	private Location getLastLocation() {
 		try {

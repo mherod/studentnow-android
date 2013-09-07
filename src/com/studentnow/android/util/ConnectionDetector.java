@@ -6,14 +6,8 @@ import android.net.NetworkInfo;
 
 public class ConnectionDetector {
 
-	private Context mContext;
-
-	public ConnectionDetector(Context context) {
-		this.mContext = context;
-	}
-
-	public boolean isConnectedOnline() {
-		ConnectivityManager connectivity = (ConnectivityManager) mContext
+	public static boolean hasNetwork(Context context) {
+		ConnectivityManager connectivity = (ConnectivityManager) context
 				.getSystemService(Context.CONNECTIVITY_SERVICE);
 		if (connectivity != null) {
 			NetworkInfo[] info = connectivity.getAllNetworkInfo();
@@ -27,4 +21,5 @@ public class ConnectionDetector {
 		}
 		return false;
 	}
+	
 }

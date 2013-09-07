@@ -34,7 +34,6 @@ public class CardModule implements ServiceModule {
 
 	private LiveService mLiveService;
 	private LocationModule mLocationModule;
-	private final ConnectionDetector mConnectionDetector;
 
 	private boolean requestCardViewUpdate = false;
 
@@ -42,7 +41,6 @@ public class CardModule implements ServiceModule {
 
 	public CardModule(LiveService liveService) {
 		mLiveService = liveService;
-		mConnectionDetector = new ConnectionDetector(liveService);
 	}
 
 	@Override
@@ -146,7 +144,7 @@ public class CardModule implements ServiceModule {
 	public boolean renderCardsView(final Context context, CardUI cardsView) {
 		List<ECard> cards = mLiveService.getCards();
 		if (cards == null || cards.size() == 0) {
-			if (!mConnectionDetector.isConnectedOnline()) {
+			if (!ConnectionDetector.hasNetwork(context)) {
 				// No cards and no Internet - we need the user to get online
 				cardsView.setSwipeable(false);
 				MyCard myCard = new MyCard(
@@ -226,15 +224,14 @@ public class CardModule implements ServiceModule {
 		context.sendBroadcast(new Intent(__.Intent_CardUpdate));
 	}
 
-	public static Bitmap getGoogleMapThumbnail(String coords) {
+	public static Bitmap getGoogleMapThumbnail(String... coords) {
 		try {
-			// URL url = new URL(
-			// "https://maps.google.com/maps/api/staticmap?center="
-			// + coords + "&zoom=17&size=600x350&sensor=false");
-			URL url = new URL("https://maps.googleapis.com/maps/api/staticmap"
-					+ "?markers=color:red|" + coords + "" + "&zoom=17"
-					+ "&size=600x350" + "&sensor=false");
-			return bitmapFromURL(url);
+			String urlString = "https://maps.googleapis.com/maps/api/staticmap?";
+			for (String marker : coords) {
+				urlString += "markers=color:red|" + marker + "&";
+			}
+			urlString += "zoom=17&size=600x350" + "&sensor=false";
+			return bitmapFromURL(new URL(urlString));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -61,8 +61,6 @@ public class LiveService extends Service implements Runnable {
 			for (ServiceModule m : modules) {
 				try {
 					t = System.currentTimeMillis();
-					Log.i(TAG, "Cycling module " + m.getClass().getSimpleName()
-							+ "...");
 					m.cycle();
 					tt = System.currentTimeMillis() - t;
 					Thread.sleep(75);
@@ -78,7 +76,6 @@ public class LiveService extends Service implements Runnable {
 				saveTicker = 0;
 			}
 			if (saveTicker == 0) {
-				Log.i(TAG, "Saving module states...");
 				for (ServiceModule m : modules) {
 					try {
 						m.save();
@@ -87,7 +84,6 @@ public class LiveService extends Service implements Runnable {
 						e.printStackTrace();
 					}
 				}
-				Log.i(TAG, "... done!");
 			}
 		}
 	}
