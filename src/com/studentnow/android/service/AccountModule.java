@@ -93,7 +93,7 @@ public class AccountModule implements ServiceModule {
 	}
 
 	public boolean hasAuthResponse() {
-		return Validation.validAuthResponse(authResponse);
+		return Validation.validAuthResponse2(authResponse);
 	}
 
 	public AuthResponse getAuthResponse() {

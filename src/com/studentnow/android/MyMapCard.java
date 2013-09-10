@@ -2,7 +2,6 @@ package com.studentnow.android;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -34,13 +33,10 @@ public class MyMapCard extends Card {
 		((TextView) view.findViewById(R.id.title)).setText(title);
 		((TextView) view.findViewById(R.id.description)).setText(desc);
 		
-		Log.d("dddd", "herpe derpe");
-
 		if (bitmap == null) {
 			((ImageView) view.findViewById(R.id.imageView1))
 					.setImageResource(image);
 		} else {
-			Log.d("dddd", "bitmap istn null");
 			((ImageView) view.findViewById(R.id.imageView1))
 					.setImageBitmap(bitmap);
 		}

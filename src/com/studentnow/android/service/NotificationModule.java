@@ -2,6 +2,8 @@ package com.studentnow.android.service;
 
 import java.util.Calendar;
 
+import org.studentnow.Static.TimeMillis;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -11,7 +13,6 @@ import android.content.IntentFilter;
 
 import com.studentnow.android.CardActivity;
 import com.studentnow.android.__;
-import org.studentnow.Static.TimeMillis;;
 
 public class NotificationModule extends BroadcastReceiver implements
 		ServiceModule {

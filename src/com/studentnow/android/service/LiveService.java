@@ -18,9 +18,35 @@ import com.studentnow.android.__;
 
 public class LiveService extends Service implements Runnable {
 
+	private ServiceModule sm = null;
+	private long smt = 0;
+
 	private final String TAG = LiveService.class.getSimpleName();
 
+	private final Runnable mMaintainanceRunnable = new Runnable() {
+		@Override
+		public void run() {
+			while (true) {
+				if (smt == 0 || sm == null) {
+					// not yet
+				} else if (mServiceThread.isInterrupted()) {
+					// wait
+				} else if ((System.currentTimeMillis() - smt) > 10000) {
+					System.err.println("Stuck on "
+							+ sm.getClass().getSimpleName() + ", interrepted!!!!");
+					mServiceThread.interrupt();
+				}
+				try {
+					Thread.sleep(100);
+				} catch (Exception e) {
+					
+				}
+			}
+		}
+	};
+
 	private final Thread mServiceThread = new Thread(this);
+	private final Thread mMaintainanceThread = new Thread(mMaintainanceRunnable);
 
 	private List<ServiceModule> modules = new ArrayList<ServiceModule>();
 
@@ -30,6 +56,7 @@ public class LiveService extends Service implements Runnable {
 	public int onStartCommand(Intent intent, int flags, int startid) {
 		if (mServiceThread.isAlive() == false) {
 			mServiceThread.start();
+			mMaintainanceThread.start();
 		}
 		return START_STICKY;
 	}
@@ -43,9 +70,9 @@ public class LiveService extends Service implements Runnable {
 		modules.add(new AccountModule(this));
 		modules.add(new UserSyncModule(this));
 		modules.add(new PushModule(this));
-		modules.add(new LocationModule(this));
 		modules.add(new CardModule(this));
 		modules.add(new NotificationModule(this));
+		modules.add(new LocationModule(this));
 
 		for (ServiceModule m : modules) {
 			m.load();
@@ -59,6 +86,9 @@ public class LiveService extends Service implements Runnable {
 		int saveTicker = 0;
 		while (true) {
 			for (ServiceModule m : modules) {
+				sm = m;
+				smt = System.currentTimeMillis();
+
 				try {
 					t = System.currentTimeMillis();
 					m.cycle();

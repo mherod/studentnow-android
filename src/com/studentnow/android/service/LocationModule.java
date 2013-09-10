@@ -4,8 +4,6 @@ import herod.android.LocationHandler;
 
 import java.util.Calendar;
 
-import com.studentnow.android.__;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -14,6 +12,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Handler;
+
+import com.studentnow.android.__;
 
 public class LocationModule extends BroadcastReceiver implements ServiceModule {
 
