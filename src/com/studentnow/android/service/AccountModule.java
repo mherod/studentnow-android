@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.studentnow.AuthResponse;
+import org.studentnow.Static.Validation;
 
 import android.util.Log;
 
@@ -72,19 +73,19 @@ public class AccountModule implements ServiceModule {
 
 	@Override
 	public void cycle() {
-		while (requestSave) {
+		if (requestSave) {
 			Log.i(TAG, "[" + "requestSave" + "]");
 			if (save()) {
 				requestSave = false;
 			}
 		}
-		while (requestAccountInvalidate) {
+		if (requestAccountInvalidate) {
 			Log.i(TAG, "[" + "requestAccountInvalidate" + "]");
 			syncModule.clearLocalData();
 			requestAccountInvalidate = false;
 			requestSyncUpdate = true;
 		}
-		while (requestSyncUpdate) {
+		if (requestSyncUpdate) {
 			Log.i(TAG, "[" + "requestSyncUpdate" + "]");
 			syncModule.requestUpdate();
 			requestSyncUpdate = false;
@@ -92,7 +93,7 @@ public class AccountModule implements ServiceModule {
 	}
 
 	public boolean hasAuthResponse() {
-		return authResponse != null && authResponse.getKey() != null;
+		return Validation.validAuthResponse(authResponse);
 	}
 
 	public AuthResponse getAuthResponse() {
