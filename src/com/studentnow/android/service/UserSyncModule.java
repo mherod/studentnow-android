@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.studentnow.ECard;
-import org.studentnow.api.CardsQuery;
+import org.studentnow.api.Cards;
 import org.studentnow.api.PostUserSetting;
 import org.studentnow.gd.Location;
 
@@ -20,7 +20,7 @@ import android.content.IntentFilter;
 import android.util.Log;
 
 import com.studentnow.android.__;
-import com.studentnow.android.io.OFiles;
+import com.studentnow.android.util.OFiles;
 
 public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
@@ -32,6 +32,7 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	private LiveService mLiveService;
 	private LocationModule mLocationModule;
 	private AccountModule mAccountModule;
+	private NotificationModule mNotificationModule;
 
 	private AlarmManager mAlarmManager;
 
@@ -62,6 +63,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				.getServiceModule(LocationModule.class);
 		mAccountModule = (AccountModule) mLiveService
 				.getServiceModule(AccountModule.class);
+		mNotificationModule = ((NotificationModule) mLiveService
+				.getServiceModule(NotificationModule.class));
 
 		String folder = OFiles.getFolder(mLiveService);
 		try {
@@ -121,63 +124,40 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 		if (mAccountModule != null && mAccountModule.hasAuthResponse()) {
 			if (!postFields.isEmpty()) {
 				if (PostUserSetting.post(mAccountModule.getAuthResponse(),
-						postFields)) {
+						postFields).isOK()) {
 					Log.d(TAG, "Submitted " + postFields.size() + " values");
 					postFields.clear();
 					requestUpdate = true;
 				}
 				requestSave = true;
 			}
-			while (requestUpdate || mLiveService.getCards().size() == 0) {
-				Thread updateCardsThread = new Thread(updateCardsRunnable);
-				updateCardsThread.start();
-				long start = System.currentTimeMillis();
-				while (updateCardsThread.isAlive()) {
-					try {
-						if ((System.currentTimeMillis() - start) > 10000) {
-							updateCardsThread.interrupt();
-							start = System.currentTimeMillis();
-							Log.e(TAG, "Interrupting jammed updateCardsThread");
-						}
-						Thread.sleep(10);
-					} catch (Exception e) {
-						Log.e(TAG, e.toString());
-						continue;
-					}
+			if (requestUpdate || mLiveService.getCards().size() == 0) {
+				Location loc = getLastLocation();
+				List<ECard> newCards = Cards.query(
+						mAccountModule.getAuthResponse(), loc);
+
+				if (newCards != null) {
+					Log.d(TAG, "Updating cards with " + newCards.size()
+							+ " new");
+					mLiveService.getCards().clear();
+					mLiveService.getCards().addAll(newCards);
+
+					requestUpdate = false;
+					requestCardRefresh = true;
+					requestSave = true;
 				}
 			}
 		}
 		if (requestCardRefresh) {
+			if (mNotificationModule != null) {
+				mNotificationModule.requestCardsRefresh();
+			}
 			requestCardRefresh = false;
-			((NotificationModule) mLiveService
-					.getServiceModule(NotificationModule.class))
-					.requestCardsRefresh();
 		}
-		if (requestSave) {
+		if (requestSave && save()) {
 			requestSave = false;
-			save();
 		}
 	}
-
-	private Runnable updateCardsRunnable = new Runnable() {
-		@Override
-		public void run() {
-			Location loc = getLastLocation();
-			List<ECard> newCards = null;
-			do {
-				newCards = CardsQuery.query(mAccountModule.getAuthResponse(),
-						loc);
-			} while (newCards == null);
-
-			Log.d(TAG, "Updating cards with " + newCards.size() + " new");
-			mLiveService.getCards().clear();
-			mLiveService.getCards().addAll(newCards);
-
-			requestUpdate = false;
-			requestCardRefresh = true;
-			requestSave = true;
-		}
-	};
 
 	private Location getLastLocation() {
 		try {

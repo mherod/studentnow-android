@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.studentnow.ECard;
-import org.studentnow.api.CardsQuery;
+import org.studentnow.api.Cards;
 import org.studentnow.gd.Location;
 
 import android.content.Context;
@@ -77,7 +77,7 @@ public class CardModule implements ServiceModule {
 
 	private void maintainLocalCards() {
 		List<ECard> cards = mLiveService.getCards();
-		int removedCount = CardsQuery.maintainLocalCards(cards);
+		int removedCount = Cards.maintainLocalCards(cards);
 		if (removedCount > 0) {
 			Log.i(TAG, "Removed " + removedCount + " expired cards");
 		}
