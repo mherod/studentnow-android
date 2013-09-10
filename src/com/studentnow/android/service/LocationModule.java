@@ -58,16 +58,13 @@ public class LocationModule extends BroadcastReceiver implements ServiceModule {
 		liveService.registerReceiver(this, new IntentFilter(
 				__.Intent_HomeLocPoll));
 
-		Calendar cal = Calendar.getInstance();
+		
 
 		final int from = 4;
-
-		int hour = cal.get(Calendar.HOUR_OF_DAY);
-
-		if (hour > from) {
-
+		Calendar cal = Calendar.getInstance();
+		if (cal.get(Calendar.HOUR_OF_DAY) >= from) {
+			
 		}
-
 		am.setInexactRepeating(AlarmManager.RTC, cal.getTimeInMillis(),
 				AlarmManager.INTERVAL_HOUR, intent);
 		

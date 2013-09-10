@@ -30,16 +30,13 @@ public class LiveService extends Service implements Runnable {
 				if (smt == 0 || sm == null) {
 					// not yet
 				} else if (mServiceThread.isInterrupted()) {
-					// wait
 				} else if ((System.currentTimeMillis() - smt) > 10000) {
-					System.err.println("Stuck on "
-							+ sm.getClass().getSimpleName() + ", interrepted!!!!");
 					mServiceThread.interrupt();
 				}
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1000);
 				} catch (Exception e) {
-					
+
 				}
 			}
 		}
@@ -63,6 +60,9 @@ public class LiveService extends Service implements Runnable {
 
 	@Override
 	public void run() {
+		
+		Log.i(TAG, "mServiceThread started");
+		sendBroadcast(new Intent(__.Intent_ConnectService));
 
 		registerReceiver(mHandleMessageReceiver, new IntentFilter(
 				__.DISPLAY_MESSAGE_ACTION));
@@ -88,14 +88,16 @@ public class LiveService extends Service implements Runnable {
 			for (ServiceModule m : modules) {
 				sm = m;
 				smt = System.currentTimeMillis();
-
 				try {
 					t = System.currentTimeMillis();
 					m.cycle();
 					tt = System.currentTimeMillis() - t;
-					Thread.sleep(75);
 				} catch (Exception e) {
 					e.printStackTrace();
+				}
+				try {
+					Thread.sleep(75);
+				} catch (InterruptedException e) {
 				}
 				if (tt > 100) {
 					Log.w(TAG, "Cycle for " + m.getClass().getSimpleName()
@@ -107,13 +109,18 @@ public class LiveService extends Service implements Runnable {
 			}
 			if (saveTicker == 0) {
 				for (ServiceModule m : modules) {
+					sm = m;
+					smt = System.currentTimeMillis();
 					try {
 						m.save();
-						Thread.sleep(50);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
+			}
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
 			}
 		}
 	}
@@ -154,6 +161,11 @@ public class LiveService extends Service implements Runnable {
 	public List<ECard> getCards() {
 		return cards;
 	}
+
+//	private void restart() {
+//		stopService(new Intent(this, LiveService.class));
+//		 startService(new Intent(this, LiveService.class));
+//	}
 
 	private final IBinder mBinder = new MyBinder();
 

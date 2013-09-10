@@ -18,6 +18,7 @@ public class __ {
 	public static final String Intent_Notification = "studentnow.notification";
 	public static final String Intent_ProgrammeUpdate = "studentnow.programmeupdate";
 	public static final String Intent_HomeLocPoll = "studentnow.homelocpoll";
+	public static final String Intent_ConnectService = "com.studentnow.android.CONNECT_SERVICE";
 	public static final String Intent_CloseApp = "com.studentnow.android.CLOSE_APP";
 
 	public static final String DISPLAY_MESSAGE_ACTION = "com.studentnow.android.DISPLAY_MESSAGE";

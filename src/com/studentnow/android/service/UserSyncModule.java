@@ -136,7 +136,7 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 				List<ECard> newCards = Cards.query(
 						mAccountModule.getAuthResponse(), loc);
 
-				if (newCards != null) {
+				if (newCards != null && newCards.size() > 0) {
 					Log.d(TAG, "Updating cards with " + newCards.size()
 							+ " new");
 					mLiveService.getCards().clear();

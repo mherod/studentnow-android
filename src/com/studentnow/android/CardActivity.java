@@ -58,8 +58,9 @@ public class CardActivity extends Activity implements Runnable {
 
 		registerReceiver(cardUpdateReceiver, new IntentFilter(
 				__.Intent_CardUpdate));
-		registerReceiver(closeAppReceiver, new IntentFilter(
-				__.Intent_CloseApp));
+		registerReceiver(connectServiceReceiver, new IntentFilter(
+				__.Intent_ConnectService));
+		registerReceiver(closeAppReceiver, new IntentFilter(__.Intent_CloseApp));
 
 		updateCardsFlag = true;
 		try {
@@ -70,6 +71,7 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	protected void onPause() {
+		serviceLink.stop(this);
 		super.onPause();
 	}
 
@@ -81,9 +83,20 @@ public class CardActivity extends Activity implements Runnable {
 	@Override
 	protected void onDestroy() {
 		unregisterReceiver(cardUpdateReceiver);
+		unregisterReceiver(connectServiceReceiver);
 		unregisterReceiver(closeAppReceiver);
-		serviceLink.stop(this);
+		// serviceLink.stop(this);
 		super.onDestroy();
+	}
+
+	@Override
+	public void onBackPressed() {
+		// sneakily prevent app from being closed
+		if (true) {
+			moveTaskToBack(true);
+			return;
+		}
+		// super.onBackPressed();
 	}
 
 	@Override
@@ -210,7 +223,14 @@ public class CardActivity extends Activity implements Runnable {
 			CardActivity.this.finish();
 		}
 	};
-	
+
+	private BroadcastReceiver connectServiceReceiver = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			serviceLink.start(CardActivity.this);
+		}
+	};
+
 	public static void finishAll(Context context) {
 		context.sendBroadcast(new Intent(__.Intent_CloseApp));
 	}
