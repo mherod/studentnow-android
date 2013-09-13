@@ -4,49 +4,52 @@ import herod.android.LocationHandler;
 
 import java.util.Calendar;
 
+import org.studentnow.Static.Fields;
+import org.studentnow.gd.Location;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.Location;
 import android.os.Handler;
 
+import com.studentnow.android.Static;
 import com.studentnow.android.__;
 
-public class LocationModule extends BroadcastReceiver implements ServiceModule {
+public class LocationModule extends ServiceModule {
 
 	private Handler mainHandler = null;
 
-	private AlarmManager am;
-
-	private LiveService liveService;
-	private LocationCache locationCache;
-	private MyLocationHandler locationHandler;
+	private LiveService mLiveService;
+	private UserSyncModule mUserSyncModule = null;
+	private LocationCache mLocationCache;
+	private MyLocationHandler mLocationHandler;
+	private AlarmManager mAlarmManager;
 
 	private PendingIntent intent;
 
 	private boolean requestLocationUpdate = false, isLocationUpdating = false;
 	private long locUpdatedStartMs = 0;
 
-	public LocationModule(LiveService live) {
+	public LocationModule(LiveService pLiveService) {
+		mLiveService = pLiveService;
+		mLocationCache = new LocationCache(pLiveService);
+		mLocationHandler = new MyLocationHandler(pLiveService);
 
-		this.liveService = live;
-		this.locationCache = new LocationCache(live);
-		this.locationHandler = new MyLocationHandler(live);
+		this.intent = PendingIntent.getBroadcast(pLiveService, 0, new Intent(
+				__.INTENT_POLL_LOC), 0);
 
-		this.intent = PendingIntent.getBroadcast(live, 0, new Intent(
-				__.Intent_HomeLocPoll), 0);
-
-		this.mainHandler = new Handler(live.getMainLooper());
-
-		this.am = (AlarmManager) live.getSystemService(Context.ALARM_SERVICE);
+		mainHandler = new Handler(pLiveService.getMainLooper());
 	}
 
 	@Override
-	public void load() {
-
+	public void linkModules() {
+		mAlarmManager = (AlarmManager) mLiveService
+				.getSystemService(Context.ALARM_SERVICE);
+		mUserSyncModule = (UserSyncModule) mLiveService
+				.getServiceModule(UserSyncModule.class);
 	}
 
 	public void requestLocationUpdate(boolean requestLocationUpdate) {
@@ -55,19 +58,17 @@ public class LocationModule extends BroadcastReceiver implements ServiceModule {
 
 	@Override
 	public void schedule() {
-		liveService.registerReceiver(this, new IntentFilter(
-				__.Intent_HomeLocPoll));
-
-		
+		mLiveService.registerReceiver(updateReciever, new IntentFilter(
+				__.INTENT_POLL_LOC));
 
 		final int from = 4;
 		Calendar cal = Calendar.getInstance();
 		if (cal.get(Calendar.HOUR_OF_DAY) >= from) {
-			
+
 		}
-		am.setInexactRepeating(AlarmManager.RTC, cal.getTimeInMillis(),
-				AlarmManager.INTERVAL_HOUR, intent);
-		
+		mAlarmManager.setInexactRepeating(AlarmManager.RTC,
+				cal.getTimeInMillis(), AlarmManager.INTERVAL_HOUR, intent);
+
 		requestLocationUpdate(true);
 	}
 
@@ -84,26 +85,40 @@ public class LocationModule extends BroadcastReceiver implements ServiceModule {
 				&& (locUpdatedStartMs + (12 * 1000)) < System
 						.currentTimeMillis()) {
 			requestLocationUpdate = false;
+
+			Location loc = getLastLocation();
+			mUserSyncModule.put(Fields.LOCATION, loc.getString());
 		}
 	}
 
 	@Override
 	public void cancel() {
-		am.cancel(intent);
-		liveService.unregisterReceiver(this);
+		mAlarmManager.cancel(intent);
+		mLiveService.unregisterReceiver(updateReciever);
 	}
 
-	@Override
-	public void onReceive(Context c, Intent i) {
-
-	}
+	private BroadcastReceiver updateReciever = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			requestLocationUpdate(true);
+		}
+	};
 
 	public LocationHandler getLocationHandler() {
-		return locationHandler;
+		return mLocationHandler;
+	}
+
+	private Location getLastLocation() {
+		try {
+			LocationCache mLocationCache = getLocationCache();
+			return mLocationCache.getLastLocation().getLocation();
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	public LocationCache getLocationCache() {
-		return locationCache;
+		return mLocationCache;
 	}
 
 	public class MyLocationHandler extends LocationHandler {
@@ -113,15 +128,15 @@ public class LocationModule extends BroadcastReceiver implements ServiceModule {
 		}
 
 		@Override
-		public void onNewBestLocation(Location loc) {
-			locationCache.storeLocation(loc);
+		public void onNewBestLocation(android.location.Location loc) {
+			mLocationCache.storeLocation(loc);
 		}
 
 	}
 
 	@Override
 	public boolean save() {
-		return true;		
+		return true;
 	}
 
 }

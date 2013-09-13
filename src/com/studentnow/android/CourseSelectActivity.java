@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.studentnow.AuthResponse;
 import org.studentnow.Course;
 import org.studentnow.Static.Fields;
+import org.studentnow.api.AuthResponse;
 import org.studentnow.api.CourseQuery;
 
 import android.app.Activity;
@@ -161,26 +161,26 @@ public class CourseSelectActivity extends Activity implements
 				mAccountModule = (AccountModule) mLiveService
 						.getServiceModule(AccountModule.class);
 				AuthResponse authResponse = mAccountModule.getAuthResponse();
-				
+
 				List<Course> responseCourses = null;
-				
+
 				if (authResponse != null) {
 					responseCourses = CourseQuery.query(authResponse,
 							searchQuery[1]);
 				}
 				if (responseCourses == null) {
-				
+
 					retry = true;
-					
+
 				} else {
-					
+
 					mResults.addAll(responseCourses);
-					
+
 					runOnUiThread(notifyDataSetChanged);
-				
+
 				}
-			} else if (progressSpinner.getVisibility() == View.VISIBLE) {		
-				runOnUiThread(hideProgress);	
+			} else if (progressSpinner.getVisibility() == View.VISIBLE) {
+				runOnUiThread(hideProgress);
 			}
 			do {
 				try {

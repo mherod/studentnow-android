@@ -3,69 +3,64 @@ package com.studentnow.android.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.studentnow.ECard;
-
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.studentnow.android.CardActivity;
 import com.studentnow.android.__;
 
 public class LiveService extends Service implements Runnable {
 
-	private ServiceModule sm = null;
-	private long smt = 0;
-
 	private final String TAG = LiveService.class.getSimpleName();
 
-	private final Runnable mMaintainanceRunnable = new Runnable() {
+	private final Runnable mNetworkOpsRunnable = new Runnable() {
 		@Override
 		public void run() {
-			while (true) {
-				if (smt == 0 || sm == null) {
-					// not yet
-				} else if (mServiceThread.isInterrupted()) {
-				} else if ((System.currentTimeMillis() - smt) > 10000) {
-					mServiceThread.interrupt();
+			while (!mNetworkOpsThread.isInterrupted()) {
+				if (serviceCycle) {
+					for (ServiceModule m : modules) {
+						try {
+							m.networkOperations();
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
 				}
 				try {
-					Thread.sleep(1000);
-				} catch (Exception e) {
-
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
 				}
 			}
 		}
 	};
 
 	private final Thread mServiceThread = new Thread(this);
-	private final Thread mMaintainanceThread = new Thread(mMaintainanceRunnable);
+	private final Thread mNetworkOpsThread = new Thread(mNetworkOpsRunnable);
 
-	private List<ServiceModule> modules = new ArrayList<ServiceModule>();
+	private boolean serviceCycle = false;
 
-	private List<ECard> cards = new ArrayList<ECard>();
+	private final List<ServiceModule> modules = new ArrayList<ServiceModule>();
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startid) {
-		if (mServiceThread.isAlive() == false) {
+		mServiceThread.setName("ServiceThread");
+		if (!mServiceThread.isAlive()) {
 			mServiceThread.start();
-			mMaintainanceThread.start();
+		}
+		mNetworkOpsThread.setName("NetworkOperationsThread");
+		if (!mNetworkOpsThread.isAlive()) {
+			mNetworkOpsThread.start();
 		}
 		return START_STICKY;
 	}
 
 	@Override
 	public void run() {
-		
-		Log.i(TAG, "mServiceThread started");
-		sendBroadcast(new Intent(__.Intent_ConnectService));
-
-		registerReceiver(mHandleMessageReceiver, new IntentFilter(
-				__.DISPLAY_MESSAGE_ACTION));
+		Log.i(TAG, mServiceThread.getName() + " started");
+		sendBroadcast(new Intent(__.INTENT_CONNECT_SERVICE));
 
 		modules.add(new AccountModule(this));
 		modules.add(new UserSyncModule(this));
@@ -73,8 +68,12 @@ public class LiveService extends Service implements Runnable {
 		modules.add(new CardModule(this));
 		modules.add(new NotificationModule(this));
 		modules.add(new LocationModule(this));
-
+		modules.add(new SignatureCheckModule(this));
+		
 		for (ServiceModule m : modules) {
+			m.linkModules();
+		}
+ 		for (ServiceModule m : modules) {
 			m.load();
 		}
 		for (ServiceModule m : modules) {
@@ -82,12 +81,11 @@ public class LiveService extends Service implements Runnable {
 		}
 
 		long t = 0, tt = 0;
-
 		int saveTicker = 0;
-		while (true) {
+
+		serviceCycle = true;
+		while (!mServiceThread.isInterrupted()) {
 			for (ServiceModule m : modules) {
-				sm = m;
-				smt = System.currentTimeMillis();
 				try {
 					t = System.currentTimeMillis();
 					m.cycle();
@@ -109,8 +107,6 @@ public class LiveService extends Service implements Runnable {
 			}
 			if (saveTicker == 0) {
 				for (ServiceModule m : modules) {
-					sm = m;
-					smt = System.currentTimeMillis();
 					try {
 						m.save();
 					} catch (Exception e) {
@@ -125,17 +121,12 @@ public class LiveService extends Service implements Runnable {
 		}
 	}
 
-	private final BroadcastReceiver mHandleMessageReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			// String newMessage =
-			// intent.getExtras().getString(__.EXTRA_MESSAGE);
-		}
-	};
-
 	@Override
 	public void onDestroy() {
-		Log.i(TAG, "Service shutting down");
+		Log.i(TAG, "Closing activity...");
+		CardActivity.finishAll(this);
+
+		Log.i(TAG, "Closing service...");
 		for (ServiceModule m : modules) {
 			m.save();
 		}
@@ -158,14 +149,10 @@ public class LiveService extends Service implements Runnable {
 		return null;
 	}
 
-	public List<ECard> getCards() {
-		return cards;
-	}
-
-//	private void restart() {
-//		stopService(new Intent(this, LiveService.class));
-//		 startService(new Intent(this, LiveService.class));
-//	}
+	// private void restart() {
+	// stopService(new Intent(this, LiveService.class));
+	// startService(new Intent(this, LiveService.class));
+	// }
 
 	private final IBinder mBinder = new MyBinder();
 

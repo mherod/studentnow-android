@@ -8,12 +8,13 @@ import android.util.Log;
 import com.google.android.gcm.GCMRegistrar;
 import com.studentnow.android.Static;
 
-public class PushModule implements ServiceModule {
+public class PushModule extends ServiceModule {
 
 	final static String TAG = PushModule.class.getSimpleName();
 
 	private LiveService mLiveService = null;
 	private AccountModule mAccountModule = null;
+	private UserSyncModule mUserSyncModule = null;
 
 	private boolean requestGcmRegSubmission = true; // false when comfy
 
@@ -23,6 +24,10 @@ public class PushModule implements ServiceModule {
 
 	@Override
 	public void load() {
+		mAccountModule = (AccountModule) mLiveService
+				.getServiceModule(AccountModule.class);
+		mUserSyncModule = (UserSyncModule) mLiveService
+				.getServiceModule(UserSyncModule.class);
 
 		GCMRegistrar.checkDevice(mLiveService);
 		final String regId = GCMRegistrar.getRegistrationId(mLiveService);
@@ -32,9 +37,6 @@ public class PushModule implements ServiceModule {
 		} else if (GCMRegistrar.isRegisteredOnServer(mLiveService)) {
 
 		}
-
-		mAccountModule = (AccountModule) mLiveService
-				.getServiceModule(AccountModule.class);
 
 		// GCMRegistrar.checkDevice(service);
 		// GCMRegistrar.checkManifest(service);
@@ -56,31 +58,13 @@ public class PushModule implements ServiceModule {
 	}
 
 	@Override
-	public boolean save() {
-
-		return true;
-	}
-
-	@Override
-	public void schedule() {
-	}
-
-	@Override
-	public void cancel() {
-
-	}
-
-	@Override
 	public void cycle() {
-		if (mAccountModule != null && mAccountModule.hasAuthResponse()
-				&& requestGcmRegSubmission && gcmRegSet()) {
-			requestGcmRegSubmission = false;
-
-			UserSyncModule mUserSyncModule = (UserSyncModule) mLiveService
-					.getServiceModule(UserSyncModule.class);
-			mUserSyncModule.put(Fields.GCM_REG_ID, Static.GCM_REG_ID);
-
-			Log.d(TAG, "Updated account with " + Fields.GCM_REG_ID);
+		if (mAccountModule != null && mAccountModule.hasAuthResponse()) {
+			if (requestGcmRegSubmission && gcmRegSet()) {
+				requestGcmRegSubmission = false;
+				mUserSyncModule.put(Fields.GCM_REG_ID, Static.GCM_REG_ID);
+				Log.d(TAG, "Updated account with " + Fields.GCM_REG_ID);
+			}
 		}
 	}
 

@@ -1,8 +1,8 @@
 package com.studentnow.android;
 
-import org.studentnow.AuthResponse;
 import org.studentnow.Static.Responses;
 import org.studentnow.api.Auth;
+import org.studentnow.api.AuthResponse;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

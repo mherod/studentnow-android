@@ -32,7 +32,7 @@ public class MyMapCard extends Card {
 				null);
 		((TextView) view.findViewById(R.id.title)).setText(title);
 		((TextView) view.findViewById(R.id.description)).setText(desc);
-		
+
 		if (bitmap == null) {
 			((ImageView) view.findViewById(R.id.imageView1))
 					.setImageResource(image);

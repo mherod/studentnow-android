@@ -25,8 +25,8 @@ public class SetupActivity extends FragmentActivity implements
 
 	private LiveServiceLink serviceLink = null;
 
-//	private Institution institutionSelection = null;
-//	private Course courseSelection = null;
+	// private Institution institutionSelection = null;
+	// private Course courseSelection = null;
 
 	SectionsPagerAdapter mSectionsPagerAdapter;
 	static ViewPager mViewPager;
@@ -88,7 +88,7 @@ public class SetupActivity extends FragmentActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			//NavUtils.navigateUpFromSameTask(this);
+			// NavUtils.navigateUpFromSameTask(this);
 			CardActivity.finishAll(this);
 			finish();
 			return true;
@@ -125,11 +125,11 @@ public class SetupActivity extends FragmentActivity implements
 		startActivityForResult(new Intent(this, LoginActivity.class), 5);
 	}
 
-//	protected void openCourseSelection() {
-//		startActivityForResult(
-//				new Intent(this, CourseSelectActivity.class).putExtra("inst",
-//						institutionSelection), 6);
-//	}
+	// protected void openCourseSelection() {
+	// startActivityForResult(
+	// new Intent(this, CourseSelectActivity.class).putExtra("inst",
+	// institutionSelection), 6);
+	// }
 
 	protected void finishSelections() {
 		startActivity(new Intent(this, CardActivity.class));
@@ -265,8 +265,8 @@ public class SetupActivity extends FragmentActivity implements
 			choose.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {
-//					SetupActivity parent = (SetupActivity) getActivity();
-//					parent.openCourseSelection();
+					// SetupActivity parent = (SetupActivity) getActivity();
+					// parent.openCourseSelection();
 				}
 			});
 			return rootView;

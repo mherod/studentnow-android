@@ -23,7 +23,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CardActivity extends Activity implements Runnable {
 
-	// private final String TAG = CardActivity.class.getName();
+	private final String TAG = CardActivity.class.getSimpleName();
 
 	private View mContentView;
 	private CardUI mCardsView;
@@ -57,10 +57,11 @@ public class CardActivity extends Activity implements Runnable {
 		serviceLink.start(this);
 
 		registerReceiver(cardUpdateReceiver, new IntentFilter(
-				__.Intent_CardUpdate));
+				__.INTENT_CARD_UPDATE));
 		registerReceiver(connectServiceReceiver, new IntentFilter(
-				__.Intent_ConnectService));
-		registerReceiver(closeAppReceiver, new IntentFilter(__.Intent_CloseApp));
+				__.INTENT_CONNECT_SERVICE));
+		registerReceiver(closeAppReceiver,
+				new IntentFilter(__.INTENT_CLOSE_APP));
 
 		updateCardsFlag = true;
 		try {
@@ -91,11 +92,8 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	public void onBackPressed() {
-		// sneakily prevent app from being closed
-		if (true) {
-			moveTaskToBack(true);
-			return;
-		}
+		moveTaskToBack(true);
+		return;
 		// super.onBackPressed();
 	}
 
@@ -232,6 +230,6 @@ public class CardActivity extends Activity implements Runnable {
 	};
 
 	public static void finishAll(Context context) {
-		context.sendBroadcast(new Intent(__.Intent_CloseApp));
+		context.sendBroadcast(new Intent(__.INTENT_CLOSE_APP));
 	}
 }

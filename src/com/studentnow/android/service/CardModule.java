@@ -2,6 +2,7 @@ package com.studentnow.android.service;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,15 +29,17 @@ import com.studentnow.android.R;
 import com.studentnow.android.__;
 import com.studentnow.android.util.ConnectionDetector;
 
-public class CardModule implements ServiceModule {
+public class CardModule extends ServiceModule {
 
 	private final String TAG = LiveService.class.getName();
 
 	private LiveService mLiveService;
+	private UserSyncModule mUserSyncModule;
 	private LocationModule mLocationModule;
 
 	private boolean requestCardViewUpdate = false;
 
+	private List<ECard> cards = new ArrayList<ECard>();
 	private static HashMap<String, Bitmap> bitmaps = new HashMap<String, Bitmap>();
 
 	public CardModule(LiveService liveService) {
@@ -44,7 +47,9 @@ public class CardModule implements ServiceModule {
 	}
 
 	@Override
-	public void load() {
+	public void linkModules() {
+		mUserSyncModule = (UserSyncModule) mLiveService
+				.getServiceModule(UserSyncModule.class);
 		mLocationModule = (LocationModule) mLiveService
 				.getServiceModule(LocationModule.class);
 	}
@@ -52,11 +57,6 @@ public class CardModule implements ServiceModule {
 	@Override
 	public void schedule() {
 		requestUpdate();
-
-	}
-
-	@Override
-	public void cancel() {
 	}
 
 	@Override
@@ -66,17 +66,16 @@ public class CardModule implements ServiceModule {
 		processRequests();
 	}
 
-	@Override
-	public boolean save() {
-		return true;
-	}
-
 	public void requestUpdate() {
 		requestCardViewUpdate = true;
 	}
 
+	public List<ECard> getCards() {
+		return cards;
+	}
+
 	private void maintainLocalCards() {
-		List<ECard> cards = mLiveService.getCards();
+		List<ECard> cards = getCards();
 		int removedCount = Cards.maintainLocalCards(cards);
 		if (removedCount > 0) {
 			Log.i(TAG, "Removed " + removedCount + " expired cards");
@@ -84,7 +83,7 @@ public class CardModule implements ServiceModule {
 	}
 
 	private void prepareBitmaps() {
-		List<ECard> cards = mLiveService.getCards();
+		List<ECard> cards = getCards();
 		if (cards == null || cards.size() == 0) {
 			return;
 		}
@@ -113,7 +112,7 @@ public class CardModule implements ServiceModule {
 	}
 
 	private boolean preparedBitmaps() {
-		List<ECard> cards = mLiveService.getCards();
+		List<ECard> cards = getCards();
 		if (cards == null || cards.size() == 0) {
 			return true;
 		}
@@ -142,7 +141,7 @@ public class CardModule implements ServiceModule {
 	}
 
 	public boolean renderCardsView(final Context context, CardUI cardsView) {
-		List<ECard> cards = mLiveService.getCards();
+		List<ECard> cards = getCards();
 		if (cards == null || cards.size() == 0) {
 			if (!ConnectionDetector.hasNetwork(context)) {
 				// No cards and no Internet - we need the user to get online
@@ -150,6 +149,15 @@ public class CardModule implements ServiceModule {
 				MyCard myCard = new MyCard(
 						mLiveService.getString(R.string.card_offline_title),
 						mLiveService.getString(R.string.card_offline_content));
+				cardsView.addCard(myCard);
+				return true;
+			} else if (mUserSyncModule.cardSuppressionPeriod.isSuppressed()) {
+				// No cards and updates are currently suppressed means we are
+				// getting errors
+				cardsView.setSwipeable(false);
+				MyCard myCard = new MyCard(
+						mLiveService.getString(R.string.card_error_title),
+						mLiveService.getString(R.string.card_error_content));
 				cardsView.addCard(myCard);
 				return true;
 			}
@@ -221,7 +229,7 @@ public class CardModule implements ServiceModule {
 	}
 
 	public static void updateActivityCards(Context context) {
-		context.sendBroadcast(new Intent(__.Intent_CardUpdate));
+		context.sendBroadcast(new Intent(__.INTENT_CARD_UPDATE));
 	}
 
 	public static Bitmap getGoogleMapThumbnail(String... coords) {

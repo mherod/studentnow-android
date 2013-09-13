@@ -1,15 +1,33 @@
 package com.studentnow.android.service;
 
-public interface ServiceModule {
+public class ServiceModule {
 	
-	public abstract void load();
+	public void linkModules() {
+		
+	}
+
+	public void load() {
+
+	}
+
+	public void schedule() {
+
+	}
+
+	public void cancel() {
+
+	}
+
+	public void cycle() {
+
+	}
 	
-	public abstract void schedule();
-	
-	public abstract void cancel();
-	
-	public abstract void cycle();
-	
-	public abstract boolean save();
+	public void networkOperations() {
+		
+	}
+
+	public boolean save() {
+		return true;
+	}
 
 }

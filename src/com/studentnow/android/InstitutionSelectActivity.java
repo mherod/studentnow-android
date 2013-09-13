@@ -152,11 +152,11 @@ public class InstitutionSelectActivity extends Activity implements Runnable,
 		class ViewHolder {
 		}
 
-//		private LayoutInflater mInflater;
+		// private LayoutInflater mInflater;
 
 		public InstitutionListAdapter(Context context) {
 			this.context = context;
-//			mInflater = LayoutInflater.from(context);
+			// mInflater = LayoutInflater.from(context);
 		}
 
 		@Override

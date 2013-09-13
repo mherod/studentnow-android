@@ -7,8 +7,12 @@ import java.util.List;
 import java.util.Random;
 
 import org.studentnow.ECard;
+import org.studentnow.Static.Responses;
+import org.studentnow.api.AuthResponse;
 import org.studentnow.api.Cards;
+import org.studentnow.api.CardsResponse;
 import org.studentnow.api.PostUserSetting;
+import org.studentnow.api.StandardResponse;
 import org.studentnow.gd.Location;
 
 import android.app.AlarmManager;
@@ -21,17 +25,19 @@ import android.util.Log;
 
 import com.studentnow.android.__;
 import com.studentnow.android.util.OFiles;
+import com.studentnow.android.util.SuppressionPeriod;
 
-public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
+public class UserSyncModule extends ServiceModule {
 
 	final static String TAG = UserSyncModule.class.getSimpleName();
 
-	final static String sCardsFile = "cards.dat";
-	final static String sPostFieldsFile = "postfields.dat";
+	private final static String FILE_CARDS = "cards.dat";
+	private final static String FILE_SYNC_FIELDS = "postfields.dat";
 
 	private LiveService mLiveService;
-	private LocationModule mLocationModule;
+	private CardModule mCardModule;
 	private AccountModule mAccountModule;
+	private LocationModule mLocationModule;
 	private NotificationModule mNotificationModule;
 
 	private AlarmManager mAlarmManager;
@@ -42,36 +48,42 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	private boolean requestCardRefresh = false;
 	private boolean requestSave = false;
 
+	protected SuppressionPeriod cardSuppressionPeriod = new SuppressionPeriod();
+	protected SuppressionPeriod postSuppressionPeriod = new SuppressionPeriod();
+
 	private HashMap<String, String> postFields = new HashMap<String, String>();
 
 	public UserSyncModule(LiveService liveService) {
 		this.mLiveService = liveService;
-
 		this.partDailyIntent = PendingIntent.getBroadcast(liveService, 0,
-				new Intent(__.Intent_ProgrammeUpdate), 0);
+				new Intent(__.INTENT_UPDATE_CARDS), 0);
 		this.fullDailyIntent = PendingIntent.getBroadcast(liveService, 1,
-				new Intent(__.Intent_ProgrammeUpdate), 0);
+				new Intent(__.INTENT_UPDATE_CARDS), 0);
+	}
 
-		this.mAlarmManager = (AlarmManager) liveService
+	@Override
+	public void linkModules() {
+		mAlarmManager = (AlarmManager) mLiveService
 				.getSystemService(Context.ALARM_SERVICE);
+		mCardModule = ((CardModule) mLiveService
+				.getServiceModule(CardModule.class));
+		mAccountModule = (AccountModule) mLiveService
+				.getServiceModule(AccountModule.class);
+		mLocationModule = (LocationModule) mLiveService
+				.getServiceModule(LocationModule.class);
+		mNotificationModule = ((NotificationModule) mLiveService
+				.getServiceModule(NotificationModule.class));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void load() {
-		mLocationModule = (LocationModule) mLiveService
-				.getServiceModule(LocationModule.class);
-		mAccountModule = (AccountModule) mLiveService
-				.getServiceModule(AccountModule.class);
-		mNotificationModule = ((NotificationModule) mLiveService
-				.getServiceModule(NotificationModule.class));
-
 		String folder = OFiles.getFolder(mLiveService);
 		try {
 			List<ECard> loadCards = (List<ECard>) OFiles.readObject(folder
-					+ sCardsFile);
-			mLiveService.getCards().clear();
-			mLiveService.getCards().addAll(loadCards);
+					+ FILE_CARDS);
+			mCardModule.getCards().clear();
+			mCardModule.getCards().addAll(loadCards);
 
 			Log.i(TAG, "Recovered " + loadCards.size()
 					+ " cards from previous service session");
@@ -80,7 +92,7 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 		}
 		try {
 			postFields = (HashMap<String, String>) OFiles.readObject(folder
-					+ sPostFieldsFile);
+					+ FILE_SYNC_FIELDS);
 
 			Log.i(TAG, "Recovered " + postFields.size()
 					+ " waiting field syncs from previous service session");
@@ -91,8 +103,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 
 	@Override
 	public void schedule() {
-		mLiveService.registerReceiver(this, new IntentFilter(
-				__.Intent_ProgrammeUpdate));
+		mLiveService.registerReceiver(updateReciever, new IntentFilter(
+				__.INTENT_UPDATE_CARDS));
 
 		Random randomGenerator = new Random();
 
@@ -116,37 +128,13 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	public void cancel() {
 		mAlarmManager.cancel(partDailyIntent);
 		mAlarmManager.cancel(fullDailyIntent);
-		mLiveService.unregisterReceiver(this);
+		mLiveService.unregisterReceiver(updateReciever);
 	}
 
 	@Override
 	public void cycle() {
-		if (mAccountModule != null && mAccountModule.hasAuthResponse()) {
-			if (!postFields.isEmpty()) {
-				if (PostUserSetting.post(mAccountModule.getAuthResponse(),
-						postFields).isOK()) {
-					Log.d(TAG, "Submitted " + postFields.size() + " values");
-					postFields.clear();
-					requestUpdate = true;
-				}
-				requestSave = true;
-			}
-			if (requestUpdate || mLiveService.getCards().size() == 0) {
-				Location loc = getLastLocation();
-				List<ECard> newCards = Cards.query(
-						mAccountModule.getAuthResponse(), loc);
-
-				if (newCards != null && newCards.size() > 0) {
-					Log.d(TAG, "Updating cards with " + newCards.size()
-							+ " new");
-					mLiveService.getCards().clear();
-					mLiveService.getCards().addAll(newCards);
-
-					requestUpdate = false;
-					requestCardRefresh = true;
-					requestSave = true;
-				}
-			}
+		if (!requestUpdate && mCardModule.getCards().size() == 0) {
+			requestUpdate = true;
 		}
 		if (requestCardRefresh) {
 			if (mNotificationModule != null) {
@@ -156,6 +144,48 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 		}
 		if (requestSave && save()) {
 			requestSave = false;
+		}
+	}
+
+	@Override
+	public void networkOperations() {
+		if (mAccountModule != null && mAccountModule.hasAuthResponse()) {
+			AuthResponse authResponse = mAccountModule.getAuthResponse();
+			if (!postFields.isEmpty() && !postSuppressionPeriod.isSuppressed()) {
+				StandardResponse sr = PostUserSetting.post(authResponse,
+						postFields);
+				if (sr.isOK()) {
+					Log.d(TAG, "Submitted " + postFields.size() + " values");
+					postFields.clear();
+					requestUpdate = true;
+					postSuppressionPeriod.reset();
+				} else {
+					Log.d(TAG, "/sync response: " + sr.getStatus()
+							+ " - retry in " + postSuppressionPeriod.suppress());
+				}
+				requestSave = true;
+			}
+			if (requestUpdate && !cardSuppressionPeriod.isSuppressed()) {
+				Location loc = getLastLocation();
+				CardsResponse cr = Cards.query(authResponse, loc);
+				List<ECard> newCards = cr.getCards();
+				if (cr.isOK()) {
+					if (newCards != null && newCards.size() > 0) {
+						Log.d(TAG, "Updating cards with " + newCards.size()
+								+ " new");
+						mCardModule.getCards().clear();
+						mCardModule.getCards().addAll(newCards);
+
+						requestUpdate = false;
+						requestCardRefresh = true;
+						requestSave = true;
+					}
+					cardSuppressionPeriod.reset();
+				} else if (cr.getStatus() == Responses.ERROR) {
+					Log.e(TAG, "Error CardsResponse - retry in "
+							+ cardSuppressionPeriod.suppress());
+				}
+			}
 		}
 	}
 
@@ -173,14 +203,16 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 		requestSave = true;
 	}
 
-	@Override
-	public void onReceive(Context c, Intent i) {
-		requestUpdate();
-		mLocationModule.requestLocationUpdate(true);
-	}
+	private BroadcastReceiver updateReciever = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			requestUpdate();
+			mLocationModule.requestLocationUpdate(true);
+		}
+	};
 
 	public void clearLocalData() {
-		mLiveService.getCards().clear();
+		mCardModule.getCards().clear();
 		postFields.clear();
 		requestSave = true;
 		Log.i(TAG, "Cleared local sync data");
@@ -194,8 +226,8 @@ public class UserSyncModule extends BroadcastReceiver implements ServiceModule {
 	public boolean save() {
 		String folder = OFiles.getFolder(mLiveService);
 		try {
-			OFiles.saveObject(postFields, folder + sPostFieldsFile);
-			OFiles.saveObject(mLiveService.getCards(), folder + sCardsFile);
+			OFiles.saveObject(postFields, folder + FILE_SYNC_FIELDS);
+			OFiles.saveObject(mCardModule.getCards(), folder + FILE_CARDS);
 			Log.i(TAG, "Saved local sync data");
 		} catch (IOException e) {
 			Log.e(TAG, e.toString());

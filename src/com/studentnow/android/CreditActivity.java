@@ -66,8 +66,7 @@ public class CreditActivity extends Activity implements OnItemClickListener {
 
 	class CreditsListAdapter extends BaseAdapter {
 
-		String[] credits = getResources().getStringArray(
-				R.array.credits);
+		String[] credits = getResources().getStringArray(R.array.credits);
 
 		Context context;
 

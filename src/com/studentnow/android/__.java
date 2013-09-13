@@ -12,14 +12,12 @@ public class __ {
 	public static final String Save_CourseName = "CourseName";
 	public static final String Save_CourseProgID = "CourseProgramme";
 
-	public static final String Tag_CardActivity = "CardActivity";
-
-	public static final String Intent_CardUpdate = "com.studentnow.android.CARD_UPDATE";
-	public static final String Intent_Notification = "studentnow.notification";
-	public static final String Intent_ProgrammeUpdate = "studentnow.programmeupdate";
-	public static final String Intent_HomeLocPoll = "studentnow.homelocpoll";
-	public static final String Intent_ConnectService = "com.studentnow.android.CONNECT_SERVICE";
-	public static final String Intent_CloseApp = "com.studentnow.android.CLOSE_APP";
+	public static final String INTENT_CARD_UPDATE = "com.studentnow.android.CARD_UPDATE";
+	public static final String INTENT_NOTIFICATION = "com.studentnow.android.NOTIFICATION";
+	public static final String INTENT_UPDATE_CARDS = "com.studentnow.android.UPDATE_CARDS";
+	public static final String INTENT_POLL_LOC = "com.studentnow.android.POLL_LOCATION";
+	public static final String INTENT_CONNECT_SERVICE = "com.studentnow.android.CONNECT_SERVICE";
+	public static final String INTENT_CLOSE_APP = "com.studentnow.android.CLOSE_APP";
 
 	public static final String DISPLAY_MESSAGE_ACTION = "com.studentnow.android.DISPLAY_MESSAGE";
 

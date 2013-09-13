@@ -14,52 +14,46 @@ import android.content.IntentFilter;
 import com.studentnow.android.CardActivity;
 import com.studentnow.android.__;
 
-public class NotificationModule extends BroadcastReceiver implements
-		ServiceModule {
+public class NotificationModule extends ServiceModule {
 
-	private final String TAG = CardActivity.class.getName();
+	private final String TAG = CardActivity.class.getSimpleName();
 
 	private LiveService mLiveService = null;
+	private AlarmManager mAlarmManager = null;
+	private PendingIntent notificationIntent = null;
 
 	private boolean requestCardRefresh = false;
 
-	private AlarmManager am;
-	private PendingIntent notificationIntent;
-
-	public NotificationModule(LiveService liveService) {
-		this.mLiveService = liveService;
-		this.am = (AlarmManager) liveService
-				.getSystemService(Context.ALARM_SERVICE);
-	}
-
-	public void requestCardsRefresh() {
-		requestCardRefresh = true;
+	public NotificationModule(LiveService pLiveService) {
+		this.mLiveService = pLiveService;
 	}
 
 	@Override
-	public void onReceive(Context c, Intent i) {
-		
+	public void linkModules() {
+		mAlarmManager = (AlarmManager) mLiveService
+				.getSystemService(Context.ALARM_SERVICE);
 	}
 
 	@Override
 	public void load() {
 		notificationIntent = PendingIntent.getBroadcast(mLiveService, 1,
-				new Intent(__.Intent_Notification), 0);
+				new Intent(__.INTENT_NOTIFICATION), 0);
 	}
 
 	@Override
 	public void schedule() {
-		mLiveService.registerReceiver(this, new IntentFilter(
-				__.Intent_Notification));
+		mLiveService.registerReceiver(updateReciever, new IntentFilter(
+				__.INTENT_NOTIFICATION));
 
-		am.setRepeating(AlarmManager.RTC, Calendar.getInstance()
-				.getTimeInMillis() + TimeMillis.SECS_10, TimeMillis.MINS_1, notificationIntent);
+		mAlarmManager.setRepeating(AlarmManager.RTC, Calendar.getInstance()
+				.getTimeInMillis() + TimeMillis.SECS_10, TimeMillis.MINS_1,
+				notificationIntent);
 	}
 
 	@Override
 	public void cancel() {
-		am.cancel(notificationIntent);
-		mLiveService.unregisterReceiver(this);
+		mAlarmManager.cancel(notificationIntent);
+		mLiveService.unregisterReceiver(updateReciever);
 	}
 
 	@Override
@@ -74,5 +68,16 @@ public class NotificationModule extends BroadcastReceiver implements
 	public boolean save() {
 		return true;
 	}
+
+	public void requestCardsRefresh() {
+		requestCardRefresh = true;
+	}
+
+	private BroadcastReceiver updateReciever = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			
+		}
+	};
 
 }

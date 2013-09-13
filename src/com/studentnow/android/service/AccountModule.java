@@ -3,14 +3,14 @@ package com.studentnow.android.service;
 import java.io.File;
 import java.io.IOException;
 
-import org.studentnow.AuthResponse;
 import org.studentnow.Static.Validation;
+import org.studentnow.api.AuthResponse;
 
 import android.util.Log;
 
 import com.studentnow.android.util.OFiles;
 
-public class AccountModule implements ServiceModule {
+public class AccountModule extends ServiceModule {
 
 	final String TAG = AccountModule.class.getSimpleName();
 
@@ -21,20 +21,22 @@ public class AccountModule implements ServiceModule {
 	private boolean requestAccountInvalidate = false;
 
 	private LiveService mLiveService = null;
-
-	private UserSyncModule syncModule = null;
+	private UserSyncModule mUserSyncModule = null;
 
 	private AuthResponse authResponse = null;
 
 	public AccountModule(LiveService liveService) {
 		this.mLiveService = liveService;
 	}
+	
+	@Override
+	public void linkModules() {
+		mUserSyncModule = ((UserSyncModule) mLiveService
+				.getServiceModule(UserSyncModule.class));
+	}
 
 	@Override
 	public void load() {
-		syncModule = ((UserSyncModule) mLiveService
-				.getServiceModule(UserSyncModule.class));
-
 		final String folder = OFiles.getFolder(mLiveService);
 		try {
 			authResponse = (AuthResponse) OFiles.readObject(folder
@@ -63,15 +65,6 @@ public class AccountModule implements ServiceModule {
 	}
 
 	@Override
-	public void schedule() {
-	}
-
-	@Override
-	public void cancel() {
-
-	}
-
-	@Override
 	public void cycle() {
 		if (requestSave) {
 			Log.i(TAG, "[" + "requestSave" + "]");
@@ -81,13 +74,13 @@ public class AccountModule implements ServiceModule {
 		}
 		if (requestAccountInvalidate) {
 			Log.i(TAG, "[" + "requestAccountInvalidate" + "]");
-			syncModule.clearLocalData();
+			mUserSyncModule.clearLocalData();
 			requestAccountInvalidate = false;
 			requestSyncUpdate = true;
 		}
 		if (requestSyncUpdate) {
 			Log.i(TAG, "[" + "requestSyncUpdate" + "]");
-			syncModule.requestUpdate();
+			mUserSyncModule.requestUpdate();
 			requestSyncUpdate = false;
 		}
 	}
