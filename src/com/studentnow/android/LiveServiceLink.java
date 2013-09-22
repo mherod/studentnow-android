@@ -13,15 +13,20 @@ public class LiveServiceLink implements ServiceConnection {
 
 	private static final String TAG = "LiveServiceLink";
 
+	private Context context = null;
 	private LiveService liveService = null;
+	
+	public LiveServiceLink(Context context) {
+		this.context = context;
+	}
 
-	public void start(Context context) {
+	public void start() {
 		Intent serviceIntent = new Intent(context, LiveService.class);
 		context.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
 		context.startService(serviceIntent);
 	}
 
-	public void stop(Context context) {
+	public void stop() {
 		context.unbindService(this);
 	}
 

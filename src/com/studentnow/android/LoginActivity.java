@@ -89,19 +89,19 @@ public class LoginActivity extends Activity {
 					}
 				});
 
-		serviceLink = new LiveServiceLink();
+		serviceLink = new LiveServiceLink(this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		serviceLink.start(this);
+		serviceLink.start();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		serviceLink.stop(this);
+		serviceLink.stop();
 	}
 
 	@Override

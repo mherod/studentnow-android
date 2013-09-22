@@ -69,7 +69,7 @@ public class CourseSelectActivity extends Activity implements
 
 		registerForContextMenu(resultsListView);
 
-		serviceLink = new LiveServiceLink();
+		serviceLink = new LiveServiceLink(this);
 
 		searchThread = new Thread(this);
 		searchThread.start();
@@ -78,7 +78,7 @@ public class CourseSelectActivity extends Activity implements
 
 	public void onResume() {
 		super.onResume();
-		serviceLink.start(this);
+		serviceLink.start();
 		opened = true;
 	}
 
@@ -90,7 +90,7 @@ public class CourseSelectActivity extends Activity implements
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		serviceLink.stop(this);
+		serviceLink.stop();
 	}
 
 	@Override

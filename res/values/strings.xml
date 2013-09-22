@@ -52,17 +52,14 @@
     <string name="hello_world">Hello world!</string>
     <string name="ok">OK</string>
     <string name="account">Account</string>
-    
     <string name="card_offline_title">No internet connection</string>
     <string name="card_offline_content">Student Now has been unable to connect to the cloud and so is unable to display your latest information</string>
     <string name="card_error_title">Sync error</string>
     <string name="card_error_content">Student Now is currently experiencing difficulty refreshing your latest information. Normal service should resume shortly. We apologise for any inconvinience caused.</string>
-    
-    
     <string name="login">Login</string>
     <string name="login_explain">We need to know which university you go to in order to retrieve the correct information.</string>
     <string name="map">Map</string>
     <string name="account">Account</string>
     <string name="account_settings">Account settings</string>
-
+    
 </resources>

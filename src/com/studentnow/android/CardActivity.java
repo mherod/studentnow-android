@@ -1,11 +1,15 @@
 package com.studentnow.android;
 
+import java.util.HashMap;
+import java.util.Iterator;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,7 +17,7 @@ import android.widget.ProgressBar;
 
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.service.AccountModule;
-import com.studentnow.android.service.CardModule;
+import com.studentnow.android.service.CardProviderModule;
 import com.studentnow.android.service.LiveService;
 import com.studentnow.android.service.UserSyncModule;
 import com.studentnow.android.util.ViewHelpers;
@@ -23,7 +27,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CardActivity extends Activity implements Runnable {
 
-	private final String TAG = CardActivity.class.getSimpleName();
+	public final String TAG = CardActivity.class.getSimpleName();
 
 	private View mContentView;
 	private CardUI mCardsView;
@@ -34,34 +38,42 @@ public class CardActivity extends Activity implements Runnable {
 	private LiveServiceLink serviceLink = null;
 
 	private boolean updateCardsFlag = false;
-
 	private boolean isLoadingView = false;
+	private boolean isForeground = false;
+
+	final HashMap<String, BroadcastReceiver> mReceivers = new HashMap<String, BroadcastReceiver>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
 		setContentView(R.layout.activity_cards);
 
 		mLoadingView = (ProgressBar) findViewById(R.id.loading_spinner);
 		mContentView = findViewById(R.id.content);
 		mCardsView = (CardUI) findViewById(R.id.cards);
-
 		isLoadingView = mLoadingView.getVisibility() == View.VISIBLE;
 
-		serviceLink = new LiveServiceLink();
+		mReceivers.put(__.INTENT_CONNECT_SERVICE, connectServiceReceiver);
+		mReceivers.put(__.INTENT_CLOSE_APP, closeAppReceiver);
+		mReceivers.put(__.INTENT_CARD_UPDATE, cardUpdateReceiver);
+		mReceivers.put(__.INTENT_ALERT, alertToastReciever);
+
+		serviceLink = new LiveServiceLink(this);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		serviceLink.start(this);
 
-		registerReceiver(cardUpdateReceiver, new IntentFilter(
-				__.INTENT_CARD_UPDATE));
-		registerReceiver(connectServiceReceiver, new IntentFilter(
-				__.INTENT_CONNECT_SERVICE));
-		registerReceiver(closeAppReceiver,
-				new IntentFilter(__.INTENT_CLOSE_APP));
+		isForeground = true;
+		serviceLink.start();
+
+		Iterator<String> receiverIterator = mReceivers.keySet().iterator();
+		while (receiverIterator.hasNext()) {
+			String filter = receiverIterator.next();
+			registerReceiver(mReceivers.get(filter), new IntentFilter(filter));
+		}
 
 		updateCardsFlag = true;
 		try {
@@ -72,7 +84,9 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	protected void onPause() {
-		serviceLink.stop(this);
+		isForeground = false;
+		serviceLink.stop();
+		thread.interrupt();
 		super.onPause();
 	}
 
@@ -83,10 +97,11 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	protected void onDestroy() {
-		unregisterReceiver(cardUpdateReceiver);
-		unregisterReceiver(connectServiceReceiver);
-		unregisterReceiver(closeAppReceiver);
-		// serviceLink.stop(this);
+		Iterator<String> receiverIterator = mReceivers.keySet().iterator();
+		while (receiverIterator.hasNext()) {
+			String filter = receiverIterator.next();
+			unregisterReceiver(mReceivers.get(filter));
+		}
 		super.onDestroy();
 	}
 
@@ -116,9 +131,11 @@ public class CardActivity extends Activity implements Runnable {
 			return true;
 
 		case R.id.action_refresh:
-			((UserSyncModule) getLiveService().getServiceModule(
-					UserSyncModule.class)).requestUpdate();
 			Crouton.makeText(this, "Refreshing...", Style.INFO).show();
+
+			UserSyncModule usm = ((UserSyncModule) getLiveService()
+					.getServiceModule(UserSyncModule.class));
+			usm.requestUpdate();
 			return true;
 
 		case R.id.action_credits:
@@ -140,8 +157,9 @@ public class CardActivity extends Activity implements Runnable {
 		if (l == null) {
 			return false;
 		}
-		CardModule cvbm = (CardModule) l.getServiceModule(CardModule.class);
-		boolean cards = cvbm.renderCardsView(this, mCardsView);
+		CardProviderModule cardProviderModule = (CardProviderModule) l
+				.getServiceModule(CardProviderModule.class);
+		boolean cards = cardProviderModule.renderCardsView(this, mCardsView);
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
 	}
@@ -152,7 +170,8 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		Log.i(TAG, "New thread");
+		while (!thread.isInterrupted()) {
 			if (updateCardsFlag) {
 				updateCardsFlag = false;
 				runOnUiThread(updateCardsRunnable);
@@ -162,6 +181,7 @@ public class CardActivity extends Activity implements Runnable {
 			} catch (Exception e) {
 			}
 		}
+		Log.i(TAG, "Exited thread");
 	}
 
 	private Runnable updateCardsRunnable = new Runnable() {
@@ -215,6 +235,18 @@ public class CardActivity extends Activity implements Runnable {
 		}
 	};
 
+	private BroadcastReceiver alertToastReciever = new BroadcastReceiver() {
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (!isForeground) {
+				return;
+			}
+			String alertString = intent.getStringExtra(__.EXTRA_ALERT);
+			Crouton.makeText(CardActivity.this, alertString, Style.ALERT)
+					.show();
+		}
+	};
+
 	private BroadcastReceiver closeAppReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
@@ -225,9 +257,14 @@ public class CardActivity extends Activity implements Runnable {
 	private BroadcastReceiver connectServiceReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			serviceLink.start(CardActivity.this);
+			serviceLink.start();
 		}
 	};
+
+	public static void showAlert(Context context, String alertString) {
+		context.sendBroadcast(new Intent(__.INTENT_ALERT).putExtra(
+				__.EXTRA_ALERT, alertString));
+	}
 
 	public static void finishAll(Context context) {
 		context.sendBroadcast(new Intent(__.INTENT_CLOSE_APP));

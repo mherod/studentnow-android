@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 
-import com.studentnow.android.Static;
 import com.studentnow.android.__;
 
 public class LocationModule extends ServiceModule {
@@ -37,11 +36,9 @@ public class LocationModule extends ServiceModule {
 		mLiveService = pLiveService;
 		mLocationCache = new LocationCache(pLiveService);
 		mLocationHandler = new MyLocationHandler(pLiveService);
-
-		this.intent = PendingIntent.getBroadcast(pLiveService, 0, new Intent(
-				__.INTENT_POLL_LOC), 0);
-
 		mainHandler = new Handler(pLiveService.getMainLooper());
+		intent = PendingIntent.getBroadcast(pLiveService, 0, new Intent(
+				__.INTENT_POLL_LOC), 0);
 	}
 
 	@Override

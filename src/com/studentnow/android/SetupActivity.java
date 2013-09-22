@@ -47,20 +47,20 @@ public class SetupActivity extends FragmentActivity implements
 		mViewPager.setPageTransformer(true, new DepthPageTransformer());
 		mViewPager.setOnPageChangeListener(this);
 
-		serviceLink = new LiveServiceLink();
+		serviceLink = new LiveServiceLink(this);
 
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
-		serviceLink.start(this);
+		serviceLink.start();
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		serviceLink.stop(this);
+		serviceLink.stop();
 	}
 
 	@Override

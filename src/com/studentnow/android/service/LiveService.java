@@ -65,7 +65,7 @@ public class LiveService extends Service implements Runnable {
 		modules.add(new AccountModule(this));
 		modules.add(new UserSyncModule(this));
 		modules.add(new PushModule(this));
-		modules.add(new CardModule(this));
+		modules.add(new CardProviderModule(this));
 		modules.add(new NotificationModule(this));
 		modules.add(new LocationModule(this));
 		modules.add(new SignatureCheckModule(this));

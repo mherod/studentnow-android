@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
+import com.studentnow.android.CardActivity;
 import com.studentnow.android.__;
 import com.studentnow.android.util.OFiles;
 import com.studentnow.android.util.SuppressionPeriod;
@@ -35,7 +36,7 @@ public class UserSyncModule extends ServiceModule {
 	private final static String FILE_SYNC_FIELDS = "postfields.dat";
 
 	private LiveService mLiveService;
-	private CardModule mCardModule;
+	private CardProviderModule mCardModule;
 	private AccountModule mAccountModule;
 	private LocationModule mLocationModule;
 	private NotificationModule mNotificationModule;
@@ -65,8 +66,8 @@ public class UserSyncModule extends ServiceModule {
 	public void linkModules() {
 		mAlarmManager = (AlarmManager) mLiveService
 				.getSystemService(Context.ALARM_SERVICE);
-		mCardModule = ((CardModule) mLiveService
-				.getServiceModule(CardModule.class));
+		mCardModule = ((CardProviderModule) mLiveService
+				.getServiceModule(CardProviderModule.class));
 		mAccountModule = (AccountModule) mLiveService
 				.getServiceModule(AccountModule.class);
 		mLocationModule = (LocationModule) mLiveService
@@ -137,8 +138,8 @@ public class UserSyncModule extends ServiceModule {
 			requestUpdate = true;
 		}
 		if (requestCardRefresh) {
-			if (mNotificationModule != null) {
-				mNotificationModule.requestCardsRefresh();
+			if (mCardModule != null) {
+				mCardModule.requestUpdate();
 			}
 			requestCardRefresh = false;
 		}
@@ -160,8 +161,12 @@ public class UserSyncModule extends ServiceModule {
 					requestUpdate = true;
 					postSuppressionPeriod.reset();
 				} else {
-					Log.d(TAG, "/sync response: " + sr.getStatus()
-							+ " - retry in " + postSuppressionPeriod.suppress());
+					long retry = postSuppressionPeriod.suppress();
+					Log.e(TAG, "/sync response: " + sr.getStatus()
+							+ " - retry in " + retry);
+					CardActivity.showAlert(mLiveService,
+							"Account sync error - retry in " + retry / 1000
+									+ "s");
 				}
 				requestSave = true;
 			}
@@ -182,8 +187,11 @@ public class UserSyncModule extends ServiceModule {
 					}
 					cardSuppressionPeriod.reset();
 				} else if (cr.getStatus() == Responses.ERROR) {
-					Log.e(TAG, "Error CardsResponse - retry in "
-							+ cardSuppressionPeriod.suppress());
+					long retry = cardSuppressionPeriod.suppress();
+					Log.e(TAG, "Error CardsResponse - retry in " + retry);
+					CardActivity.showAlert(mLiveService,
+							"Card update error - retry in " + retry / 1000
+									+ "s");
 				}
 			}
 		}
