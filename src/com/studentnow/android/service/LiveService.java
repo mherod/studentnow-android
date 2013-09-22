@@ -23,7 +23,7 @@ public class LiveService extends Service implements Runnable {
 				if (serviceCycle) {
 					for (ServiceModule m : modules) {
 						try {
-							m.networkOperations();
+							m.cycleNetwork();
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -71,7 +71,7 @@ public class LiveService extends Service implements Runnable {
 		modules.add(new SignatureCheckModule(this));
 		
 		for (ServiceModule m : modules) {
-			m.linkModules();
+			m.link();
 		}
  		for (ServiceModule m : modules) {
 			m.load();

@@ -45,14 +45,14 @@ public class CardProviderModule extends ServiceModule {
 	private boolean requestCardViewUpdate = false;
 
 	private List<ECard> cards = new ArrayList<ECard>();
-	private static HashMap<String, Bitmap> bitmaps = new HashMap<String, Bitmap>();
+	private final HashMap<String, Bitmap> bitmaps = new HashMap<String, Bitmap>();
 
-	public CardProviderModule(LiveService liveService) {
-		mLiveService = liveService;
+	public CardProviderModule(LiveService pLiveService) {
+		mLiveService = pLiveService;
 	}
 
 	@Override
-	public void linkModules() {
+	public void link() {
 		mUserSyncModule = (UserSyncModule) mLiveService
 				.getServiceModule(UserSyncModule.class);
 		mLocationModule = (LocationModule) mLiveService

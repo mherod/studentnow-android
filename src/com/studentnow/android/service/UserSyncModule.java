@@ -63,7 +63,7 @@ public class UserSyncModule extends ServiceModule {
 	}
 
 	@Override
-	public void linkModules() {
+	public void link() {
 		mAlarmManager = (AlarmManager) mLiveService
 				.getSystemService(Context.ALARM_SERVICE);
 		mCardModule = ((CardProviderModule) mLiveService
@@ -149,7 +149,7 @@ public class UserSyncModule extends ServiceModule {
 	}
 
 	@Override
-	public void networkOperations() {
+	public void cycleNetwork() {
 		if (mAccountModule != null && mAccountModule.hasAuthResponse()) {
 			AuthResponse authResponse = mAccountModule.getAuthResponse();
 			if (!postFields.isEmpty() && !postSuppressionPeriod.isSuppressed()) {

@@ -209,29 +209,34 @@ public class CardActivity extends Activity implements Runnable {
 	final Runnable showCards = new Runnable() {
 		@Override
 		public void run() {
-			if (isLoadingView()) {
-				ViewHelpers.crossfade(mLoadingView, mContentView);
-				isLoadingView = false;
+			if (!isLoadingView()) {
+				return;
 			}
+			ViewHelpers.crossfade(mLoadingView, mContentView);
+			isLoadingView = false;
 		}
 	};
 
 	final Runnable showProgress = new Runnable() {
 		@Override
 		public void run() {
-			if (!isLoadingView()) {
-				ViewHelpers.crossfade(mContentView, mLoadingView);
-				isLoadingView = true;
+			if (isLoadingView()) {
+				return;
 			}
+			ViewHelpers.crossfade(mContentView, mLoadingView);
+			isLoadingView = true;
 		}
 	};
 
 	private BroadcastReceiver cardUpdateReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			updateCardsFlag = true;
+			if (!isForeground) {
+				return;
+			}
 			Crouton.makeText(CardActivity.this, "Cards updated", Style.CONFIRM)
 					.show();
-			updateCardsFlag = true;
 		}
 	};
 

@@ -30,7 +30,7 @@ public class AccountModule extends ServiceModule {
 	}
 	
 	@Override
-	public void linkModules() {
+	public void link() {
 		mUserSyncModule = ((UserSyncModule) mLiveService
 				.getServiceModule(UserSyncModule.class));
 	}

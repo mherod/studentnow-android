@@ -2,7 +2,7 @@ package com.studentnow.android.service;
 
 public class ServiceModule {
 	
-	public void linkModules() {
+	public void link() {
 		
 	}
 
@@ -22,7 +22,7 @@ public class ServiceModule {
 
 	}
 	
-	public void networkOperations() {
+	public void cycleNetwork() {
 		
 	}
 

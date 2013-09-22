@@ -42,7 +42,7 @@ public class LocationModule extends ServiceModule {
 	}
 
 	@Override
-	public void linkModules() {
+	public void link() {
 		mAlarmManager = (AlarmManager) mLiveService
 				.getSystemService(Context.ALARM_SERVICE);
 		mUserSyncModule = (UserSyncModule) mLiveService
