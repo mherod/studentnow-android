@@ -15,35 +15,47 @@ public class LiveServiceLink implements ServiceConnection {
 
 	private Context context = null;
 	private LiveService liveService = null;
-	
+
 	public LiveServiceLink(Context context) {
 		this.context = context;
 	}
 
-	public void start() {
+	public final void start() {
 		Intent serviceIntent = new Intent(context, LiveService.class);
 		context.bindService(serviceIntent, this, Context.BIND_AUTO_CREATE);
 		context.startService(serviceIntent);
 	}
 
-	public void stop() {
+	public final void stop() {
 		context.unbindService(this);
 	}
 
-	public LiveService getLiveService() {
+	public final LiveService getLiveService() {
 		return liveService;
 	}
 
-	public void onServiceConnected(ComponentName name, IBinder service) {
+	public final void onServiceConnected(ComponentName name, IBinder service) {
 		liveService = ((LiveService.MyBinder) service).getService();
-		Log.v(TAG, "Service Connected: " + name.getClassName() + ", "
+		onConnect();		
+
+		Log.i(TAG, "Service Connected: " + name.getClassName() + ", "
 				+ (liveService == null ? "null" : "not null"));
 	}
 
-	public void onServiceDisconnected(ComponentName name) {
+	public final void onServiceDisconnected(ComponentName name) {
 		liveService = null;
+		onDisconnect();
+		
 		Log.v(TAG, "Service Disconnected: " + name.getClassName() + ", "
 				+ (liveService == null ? "null" : "not null"));
+	}
+	
+	public void onConnect() {
+		
+	}
+	
+	public void onDisconnect() {
+		
 	}
 
 }

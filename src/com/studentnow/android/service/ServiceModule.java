@@ -1,9 +1,9 @@
 package com.studentnow.android.service;
 
 public class ServiceModule {
-	
+
 	public void link() {
-		
+
 	}
 
 	public void load() {
@@ -21,9 +21,9 @@ public class ServiceModule {
 	public void cycle() {
 
 	}
-	
+
 	public void cycleNetwork() {
-		
+
 	}
 
 	public boolean save() {

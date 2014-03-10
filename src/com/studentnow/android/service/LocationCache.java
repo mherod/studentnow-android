@@ -1,6 +1,6 @@
 package com.studentnow.android.service;
 
-import org.studentnow.gd.Location;
+import org.studentnow.gd.Loc;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -14,7 +14,7 @@ public class LocationCache extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME = "location_cache";
 
 	private static final String TABLE_FIXES = "fixes";
-
+	
 	private static final String FIELD_FIX_TIME = "time";
 	private static final String FIELD_FIX_PRVID = "provider";
 	private static final String FIELD_FIX_LAT = "lat";
@@ -109,9 +109,7 @@ public class LocationCache extends SQLiteOpenHelper {
 
 	}
 
-	public CachedLocation getLastLocation() {
-
-		CachedLocation loc = new CachedLocation();
+	public CachedLoc getLastLocation() {
 
 		String selectQuery = "SELECT  * "
 
@@ -125,10 +123,11 @@ public class LocationCache extends SQLiteOpenHelper {
 		Cursor cursor = db.rawQuery(selectQuery, null);
 
 		if (cursor.moveToFirst()) {
+			double lat = cursor.getDouble(2);
+			double lng = cursor.getDouble(3);			
+			CachedLoc loc = new CachedLoc(lat, lng);			
 			loc.setTime(cursor.getLong(0));
 			loc.setProvider(cursor.getString(1));
-			loc.setLat(cursor.getDouble(2));
-			loc.setLng(cursor.getDouble(3));
 			return loc;
 		}
 		return null;
@@ -148,12 +147,15 @@ public class LocationCache extends SQLiteOpenHelper {
 		db.close();
 
 	}
-
-	public class CachedLocation {
-
-		private long time = 0;
+	
+	public class CachedLoc extends Loc {
+		
 		private String provider = "";
-		private double lat = 0.0, lng = 0.0;
+		private long time = 0;
+
+		public CachedLoc(double lat, double lng) {
+			super(lat, lng);
+		}
 
 		public long getTime() {
 			return time;
@@ -170,27 +172,7 @@ public class LocationCache extends SQLiteOpenHelper {
 		public void setProvider(String provider) {
 			this.provider = provider;
 		}
-
-		public double getLongitude() {
-			return lng;
-		}
-
-		public void setLng(double lng) {
-			this.lng = lng;
-		}
-
-		public double getLatitude() {
-			return lat;
-		}
-
-		public void setLat(double lat) {
-			this.lat = lat;
-		}
-
-		public Location getLocation() {
-			return new Location(lat, lng);
-		}
-
+		
 	}
 
 }

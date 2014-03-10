@@ -17,6 +17,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.fima.cardsui.objects.Card;
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.util.DepthPageTransformer;
 
@@ -89,9 +90,9 @@ public class SetupActivity extends FragmentActivity implements
 		switch (item.getItemId()) {
 		case android.R.id.home:
 			// NavUtils.navigateUpFromSameTask(this);
-			CardActivity.finishAll(this);
-			finish();
-			return true;
+			// CardActivity.finishAll(this);
+			// finish();
+			// return true;
 		case R.id.action_exit:
 			CardActivity.finishAll(this);
 			finish();
@@ -196,9 +197,9 @@ public class SetupActivity extends FragmentActivity implements
 					R.layout.activity_setup_welcome_fragment, container, false);
 			mCards = (CardUI) rootView.findViewById(R.id.cardssetup);
 
-			MyCard c1 = new MyCard(getString(R.string.app_name),
+			Card c1 = new VECard(getString(R.string.app_name),
 					getString(R.string.welcome_introduction));
-			MyCard c2 = new MyCard(getString(R.string.swipe_setup),
+			Card c2 = new VECard(getString(R.string.swipe_setup),
 					getString(R.string.swipe_setup_content));
 			mCards.addCard(c1);
 			mCards.addCard(c2);
@@ -224,7 +225,7 @@ public class SetupActivity extends FragmentActivity implements
 			String title = getString(R.string.login);
 			String content = getString(R.string.login_explain);
 			mCards = (CardUI) rootView.findViewById(R.id.cardssetup);
-			mCards.addCard(new MyCard(title, content));
+			mCards.addCard(new VECard(title, content));
 			mCards.setSwipeable(false);
 			mCards.refresh();
 
@@ -254,7 +255,7 @@ public class SetupActivity extends FragmentActivity implements
 					R.layout.activity_setup_course_fragment, container, false);
 
 			mCards = (CardUI) rootView.findViewById(R.id.cardssetup);
-			MyCard c1 = new MyCard(getString(R.string.setup_select_course),
+			Card c1 = new VECard(getString(R.string.setup_select_course),
 					getString(R.string.setup_select_course_content));
 			mCards.addCard(c1);
 			mCards.setSwipeable(false);

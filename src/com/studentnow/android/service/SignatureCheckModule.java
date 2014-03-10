@@ -11,21 +11,21 @@ import android.content.pm.Signature;
 
 public class SignatureCheckModule extends ServiceModule {
 
-	final static String TAG = PushModule.class.getSimpleName();
-	
+	final static String TAG = PostModule.class.getSimpleName();
+
 	private LiveService mLiveService = null;
 	private UserSyncModule mUserSyncModule = null;
-	
-	public SignatureCheckModule(LiveService pLiveService ){
+
+	public SignatureCheckModule(LiveService pLiveService) {
 		this.mLiveService = pLiveService;
 	}
-	
+
 	@Override
 	public void load() {
 		mUserSyncModule = (UserSyncModule) mLiveService
 				.getServiceModule(UserSyncModule.class);
-		
-		String signature = getSignature(mLiveService);		
+
+		String signature = getSignature(mLiveService);
 		mUserSyncModule.put("signature", signature);
 	}
 

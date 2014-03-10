@@ -12,18 +12,20 @@ public class __ {
 	public static final String Save_CourseName = "CourseName";
 	public static final String Save_CourseProgID = "CourseProgramme";
 
-	public static final String INTENT_CARD_UPDATE = "com.studentnow.android.CARD_UPDATE";
-	public static final String INTENT_NOTIFICATION = "com.studentnow.android.NOTIFICATION";
-	public static final String INTENT_UPDATE_CARDS = "com.studentnow.android.UPDATE_CARDS";
-	public static final String INTENT_POLL_LOC = "com.studentnow.android.POLL_LOCATION";
-	public static final String INTENT_CONNECT_SERVICE = "com.studentnow.android.CONNECT_SERVICE";
-	public static final String INTENT_CLOSE_APP = "com.studentnow.android.CLOSE_APP";
-	public static final String INTENT_ALERT = "com.studentnow.android.ALERT_ACTIVITY";
+	public static final String PACKAGE = "com.studentnow.android";
+
+	public static final String INTENT_CARD_UPDATE = PACKAGE + ".CARD_UPDATE";
+	public static final String INTENT_NOTIFICATION = PACKAGE + ".NOTIFICATION";
+	public static final String INTENT_UPDATE_CARDS = PACKAGE + ".UPDATE_CARDS";
+	public static final String INTENT_POLL_LOC = PACKAGE + ".POLL_LOCATION";
+	public static final String INTENT_CONNECT_SERVICE = PACKAGE + ".CONNECT_SERVICE";
+	public static final String INTENT_CLOSE_APP = PACKAGE + ".CLOSE_APP";
+	public static final String INTENT_ALERT = PACKAGE + ".ALERT_ACTIVITY";
 
 	public static final String DISPLAY_MESSAGE_ACTION = "com.studentnow.android.DISPLAY_MESSAGE";
 
 	public static final String EXTRA_MESSAGE = "message";
-	
+
 	public static final String EXTRA_ALERT = "alert_string";
 
 	public static void displayMessage(Context context, String message) {

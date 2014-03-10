@@ -1,7 +1,6 @@
 package com.studentnow.android;
 
 import java.util.HashMap;
-import java.util.Iterator;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -14,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.service.AccountModule;
@@ -35,11 +35,15 @@ public class CardActivity extends Activity implements Runnable {
 
 	private Thread thread = new Thread(this);
 
-	private LiveServiceLink serviceLink = null;
+	private MyLiveServiceLink serviceLink = null;
+	private LiveService mLiveService = null;
 
 	private boolean updateCardsFlag = false;
 	private boolean isLoadingView = false;
 	private boolean isForeground = false;
+
+	private long lastBackground = 0;
+	private long lastUpdate = System.currentTimeMillis();
 
 	final HashMap<String, BroadcastReceiver> mReceivers = new HashMap<String, BroadcastReceiver>();
 
@@ -59,7 +63,7 @@ public class CardActivity extends Activity implements Runnable {
 		mReceivers.put(__.INTENT_CARD_UPDATE, cardUpdateReceiver);
 		mReceivers.put(__.INTENT_ALERT, alertToastReciever);
 
-		serviceLink = new LiveServiceLink(this);
+		serviceLink = new MyLiveServiceLink(this);
 	}
 
 	@Override
@@ -69,9 +73,7 @@ public class CardActivity extends Activity implements Runnable {
 		isForeground = true;
 		serviceLink.start();
 
-		Iterator<String> receiverIterator = mReceivers.keySet().iterator();
-		while (receiverIterator.hasNext()) {
-			String filter = receiverIterator.next();
+		for (String filter : mReceivers.keySet()) {
 			registerReceiver(mReceivers.get(filter), new IntentFilter(filter));
 		}
 
@@ -85,6 +87,7 @@ public class CardActivity extends Activity implements Runnable {
 	@Override
 	protected void onPause() {
 		isForeground = false;
+		lastBackground = System.currentTimeMillis();
 		serviceLink.stop();
 		thread.interrupt();
 		super.onPause();
@@ -97,9 +100,7 @@ public class CardActivity extends Activity implements Runnable {
 
 	@Override
 	protected void onDestroy() {
-		Iterator<String> receiverIterator = mReceivers.keySet().iterator();
-		while (receiverIterator.hasNext()) {
-			String filter = receiverIterator.next();
+		for (String filter : mReceivers.keySet()) {
 			unregisterReceiver(mReceivers.get(filter));
 		}
 		super.onDestroy();
@@ -133,7 +134,7 @@ public class CardActivity extends Activity implements Runnable {
 		case R.id.action_refresh:
 			Crouton.makeText(this, "Refreshing...", Style.INFO).show();
 
-			UserSyncModule usm = ((UserSyncModule) getLiveService()
+			UserSyncModule usm = ((UserSyncModule) mLiveService
 					.getServiceModule(UserSyncModule.class));
 			usm.requestUpdate();
 			return true;
@@ -153,25 +154,33 @@ public class CardActivity extends Activity implements Runnable {
 	}
 
 	private boolean updateCardsView() {
-		LiveService l = getLiveService();
+		LiveService l = mLiveService;
 		if (l == null) {
 			return false;
 		}
 		CardProviderModule cardProviderModule = (CardProviderModule) l
 				.getServiceModule(CardProviderModule.class);
 		boolean cards = cardProviderModule.renderCardsView(this, mCardsView);
+		if (cards) {
+			lastUpdate = System.currentTimeMillis();
+		}
 		runOnUiThread(cards ? showCards : showProgress);
 		return cards;
-	}
-
-	private LiveService getLiveService() {
-		return serviceLink.getLiveService();
 	}
 
 	@Override
 	public void run() {
 		Log.i(TAG, "New thread");
-		while (!thread.isInterrupted()) {
+		do {
+			long now = System.currentTimeMillis();
+			if (!isForeground && (now - lastBackground) > (30 * 1000)) {
+				Log.d(TAG, "Background timeout");
+				finish();
+				break;
+			}
+			if (isForeground && (now - lastUpdate) > (15 * 1000)) {
+				updateCardsFlag = true;
+			}
 			if (updateCardsFlag) {
 				updateCardsFlag = false;
 				runOnUiThread(updateCardsRunnable);
@@ -180,24 +189,27 @@ public class CardActivity extends Activity implements Runnable {
 				Thread.sleep(250);
 			} catch (Exception e) {
 			}
-		}
-		Log.i(TAG, "Exited thread");
+		} while (!thread.isInterrupted());
+		Log.i(TAG, "Exit thread");
 	}
 
 	private Runnable updateCardsRunnable = new Runnable() {
 		@Override
 		public void run() {
-			LiveService l = getLiveService();
+			LiveService l = mLiveService;
 			if (l == null) {
 				updateCardsFlag = true;
 				return;
 			}
+
 			AccountModule am = (AccountModule) l
 					.getServiceModule(AccountModule.class);
-			if (!am.hasAuthResponse()) {
+			if (isForeground && !am.hasAuthResponse()) {
+				Log.i(TAG, "Login a");
 				openSetup();
 				return;
 			}
+
 			updateCardsFlag = !updateCardsView();
 		}
 	};
@@ -273,5 +285,26 @@ public class CardActivity extends Activity implements Runnable {
 
 	public static void finishAll(Context context) {
 		context.sendBroadcast(new Intent(__.INTENT_CLOSE_APP));
+	}
+
+	private class MyLiveServiceLink extends LiveServiceLink {
+
+		Context context = null;
+
+		public MyLiveServiceLink(Context context) {
+			super(context);
+			this.context = context;
+		}
+
+		@Override
+		public void onConnect() {
+			mLiveService = getLiveService();
+		}
+
+		@Override
+		public void onDisconnect() {
+			CardActivity.finishAll(context);
+		}
+
 	}
 }

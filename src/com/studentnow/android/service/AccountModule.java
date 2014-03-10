@@ -28,7 +28,7 @@ public class AccountModule extends ServiceModule {
 	public AccountModule(LiveService liveService) {
 		this.mLiveService = liveService;
 	}
-	
+
 	@Override
 	public void link() {
 		mUserSyncModule = ((UserSyncModule) mLiveService
@@ -39,7 +39,7 @@ public class AccountModule extends ServiceModule {
 	public void load() {
 		final String folder = OFiles.getFolder(mLiveService);
 		try {
-			authResponse = (AuthResponse) OFiles.readObject(folder
+			authResponse = (AuthResponse) OFiles.read(folder
 					+ authKeyFile);
 			Log.i(TAG, "Recovered authResponse");
 		} catch (Exception e) {

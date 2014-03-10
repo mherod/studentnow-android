@@ -14,6 +14,15 @@ public class OFiles {
 	public static String getFolder(Context context) {
 		return context.getFilesDir() + File.separator;
 	}
+	
+	public static boolean saveObject(Object o, File file) throws IOException {
+		FileOutputStream fos = new FileOutputStream(file);
+		ObjectOutputStream oos = new ObjectOutputStream(fos);
+		oos.writeObject(o);
+		oos.close();
+		fos.close();
+		return true;
+	}
 
 	public static boolean saveObject(Object o, String file) throws IOException {
 		FileOutputStream fos = new FileOutputStream(file);
@@ -24,7 +33,7 @@ public class OFiles {
 		return true;
 	}
 
-	public static Object readObject(String file) throws IOException,
+	public static Object read(String file) throws IOException,
 			ClassNotFoundException {
 		Object o = null;
 		FileInputStream fileIn = new FileInputStream(file);

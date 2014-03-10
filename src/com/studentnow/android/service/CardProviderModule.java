@@ -9,9 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.studentnow.ECard;
+import org.studentnow.Static.Fields;
 import org.studentnow.api.Cards;
 import org.studentnow.api.QueryFactory;
-import org.studentnow.gd.Location;
+import org.studentnow.gd.Loc;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,17 +27,23 @@ import com.fima.cardsui.objects.Card;
 import com.fima.cardsui.views.CardUI;
 import com.studentnow.android.CardActivity;
 import com.studentnow.android.CourseSelectActivity;
+import com.studentnow.android.VECard;
 import com.studentnow.android.LoginActivity;
-import com.studentnow.android.MyCard;
-import com.studentnow.android.MyImageCard;
-import com.studentnow.android.MyMapCard;
 import com.studentnow.android.R;
 import com.studentnow.android.__;
+import com.studentnow.android.service.LocationCache.CachedLoc;
 import com.studentnow.android.util.ConnectionDetector;
 
 public class CardProviderModule extends ServiceModule {
 
-	private final String TAG = LiveService.class.getName();
+	private final String TAG = CardProviderModule.class.getSimpleName();
+
+	private static final String IMG_TEXT_SRC = Fields.IMAGE_TEXT_SRC;
+	private static final String IMG_MAIN_SRC = Fields.IMAGE_MAIN_SRC;
+	private static final String IMG_TEXT_SRC_ = Fields.IMAGE_SRC;
+
+	private static final String[] URL_FIELDS = { IMG_TEXT_SRC, IMG_MAIN_SRC,
+			IMG_TEXT_SRC_ };
 
 	private LiveService mLiveService;
 	private UserSyncModule mUserSyncModule;
@@ -67,8 +74,14 @@ public class CardProviderModule extends ServiceModule {
 	@Override
 	public void cycle() {
 		maintainLocalCards();
-		loadBitmaps();
 		processRequests();
+	}
+
+	@Override
+	public void cycleNetwork() {
+		if (!isPrepared()) {
+			loadBitmaps();
+		}
 	}
 
 	public void requestUpdate() {
@@ -81,8 +94,12 @@ public class CardProviderModule extends ServiceModule {
 
 	public Intent getCardIntent(ECard ecard) {
 		if (ecard.hasLink()) {
-			Uri uri = Uri.parse(ecard.getLink());
-			return new Intent(Intent.ACTION_VIEW, uri);
+			try {
+				Uri uri = Uri.parse(ecard.getLink());
+				return new Intent(Intent.ACTION_VIEW, uri);
+			} catch (NullPointerException npe) {
+				return null;
+			}
 		}
 		if (ecard.isType(ECard.LOGIN)) {
 			return new Intent(mLiveService, LoginActivity.class);
@@ -92,7 +109,7 @@ public class CardProviderModule extends ServiceModule {
 		}
 		if (ecard.isType(ECard.TRAVEL)) {
 			HashMap<String, String> params = new HashMap<String, String>();
-			Location loc = getLastLocation();
+			Loc loc = getLastLocation();
 			if (loc != null) {
 				params.put("saddr", loc.getString());
 			}
@@ -132,14 +149,14 @@ public class CardProviderModule extends ServiceModule {
 			if (ecard.hasMapCoords()) {
 				String coords = ecard.getMapCoords();
 				if (!bitmaps.containsKey(coords)) {
+					Log.e(TAG, "No coords bitmap: " + coords);
 					return false;
 				}
 			}
-			if (ecard.hasImageSrc()) {
-				String url = ecard.getImageSrc();
-				if (!bitmaps.containsKey(url)) {
-					return false;
-				}
+			String img_text_src = ecard.getFString(IMG_TEXT_SRC, IMG_TEXT_SRC_);
+			if (img_text_src != null && !bitmaps.containsKey(img_text_src)) {
+				Log.e(TAG, "No url bitmap: " + img_text_src);
+				return false;
 			}
 		}
 		return true;
@@ -151,24 +168,34 @@ public class CardProviderModule extends ServiceModule {
 			return;
 		}
 		for (ECard ecard : cards) {
+
+			// Depreciated
 			if (ecard.hasMapCoords()) {
 				String coords = ecard.getMapCoords();
 				if (!bitmaps.containsKey(coords)) {
 					Bitmap b = getGoogleMapThumbnail(coords);
-					bitmaps.put(coords, b);
+					if (b != null) {
+						bitmaps.put(coords, b);
+						Log.i(TAG, "Prepared coords bitmap: " + coords);
+					}
 				}
 			}
-			if (ecard.hasImageSrc()) {
-				String url = ecard.getImageSrc();
-				if (!bitmaps.containsKey(url)) {
-					URL url2 = null;
-					try {
-						url2 = new URL(url);
-					} catch (Exception e) {
-						continue;
-					}
-					Bitmap b = bitmapFromURL(url2);
+
+			for (String url_field : URL_FIELDS) {
+				String url = ecard.getString(url_field);
+				if (url == null || bitmaps.containsKey(url)) {
+					continue;
+				}
+				URL url2 = null;
+				try {
+					url2 = new URL(url);
+				} catch (Exception e) {
+					continue;
+				}
+				Bitmap b = bitmapFromURL(url2);
+				if (b != null) {
 					bitmaps.put(url, b);
+					Log.i(TAG, "Prepared url bitmap: " + url);
 				}
 			}
 		}
@@ -187,7 +214,7 @@ public class CardProviderModule extends ServiceModule {
 			if (!ConnectionDetector.hasNetwork(context)) {
 				// No cards and no Internet - we need the user to get online
 				cardsView.setSwipeable(false);
-				MyCard myCard = new MyCard(
+				Card myCard = new VECard(
 						mLiveService.getString(R.string.card_offline_title),
 						mLiveService.getString(R.string.card_offline_content));
 				cardsView.addCard(myCard);
@@ -196,7 +223,7 @@ public class CardProviderModule extends ServiceModule {
 				// No cards and updates are currently suppressed means we are
 				// getting errors
 				cardsView.setSwipeable(false);
-				MyCard myCard = new MyCard(
+				Card myCard = new VECard(
 						mLiveService.getString(R.string.card_error_title),
 						mLiveService.getString(R.string.card_error_content));
 				cardsView.addCard(myCard);
@@ -213,19 +240,35 @@ public class CardProviderModule extends ServiceModule {
 		cardsView.setSwipeable(false);
 		long time = System.currentTimeMillis();
 		for (final ECard ecard : cards) {
-			if (ecard.getTimeDisplays() > time) {
+			if (!ecard.isRelevantTime(time)) {
 				continue;
 			}
-			Card card = null;
-			if (ecard.hasImageSrc()) {
-				card = new MyImageCard(ecard.getTitle(), ecard.getDesc(),
-						bitmaps.get(ecard.getImageSrc()));
-			} else if (ecard.hasMapCoords()) {
-				card = new MyMapCard(ecard.getTitle(), ecard.getDesc(),
-						bitmaps.get(ecard.getMapCoords()));
-			} else {
-				card = new MyCard(ecard);
+			VECard card = new VECard(ecard);
+
+			String image_text_src = ecard.getFString(IMG_TEXT_SRC,
+					IMG_TEXT_SRC_);
+			if (image_text_src != null) {
+				Bitmap b = bitmaps.get(image_text_src);
+				if (b != null) {
+					card.setMainBitmap(b);
+				}
 			}
+			String img_main_src = ecard.getString(IMG_MAIN_SRC);
+			if (img_main_src != null) {
+				Bitmap b = bitmaps.get(img_main_src);
+				if (b != null) {
+					card.setBottomBitmap(b);
+				}
+			}
+			// Depreciated
+			String map_coords = ecard.getMapCoords();
+			if (map_coords != null) {
+				Bitmap b = bitmaps.get(map_coords);
+				if (b != null) {
+					card.setBottomBitmap(b);
+				}
+			}
+
 			final Intent intent = getCardIntent(ecard);
 			if (intent != null) {
 				card.setOnClickListener(new OnClickListener() {
@@ -242,10 +285,10 @@ public class CardProviderModule extends ServiceModule {
 		return true;
 	}
 
-	private Location getLastLocation() {
+	private CachedLoc getLastLocation() {
 		try {
 			LocationCache mLocationCache = mLocationModule.getLocationCache();
-			return mLocationCache.getLastLocation().getLocation();
+			return mLocationCache.getLastLocation();
 		} catch (Exception e) {
 			return null;
 		}
@@ -261,7 +304,7 @@ public class CardProviderModule extends ServiceModule {
 			for (String marker : coords) {
 				urlString += "markers=color:red|" + marker + "&";
 			}
-			urlString += "zoom=17&size=600x350" + "&sensor=false";
+			urlString += "size=600x350" + "&sensor=false"; // zoom=17&
 			return bitmapFromURL(new URL(urlString));
 		} catch (Exception e) {
 			e.printStackTrace();

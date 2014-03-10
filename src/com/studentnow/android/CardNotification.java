@@ -83,9 +83,9 @@ public class CardNotification {
 
 		if (eCard.getSpotlightTime() > 0) {
 			builder.setWhen(eCard.getSpotlightTime());
-		} else if (eCard.getTimeDisplays() > 0) {
-			builder.setWhen(eCard.getTimeDisplays());
-		} else if (eCard.getNotificationTime() > 0) {
+		} else if (eCard.hasDisplayTime()) {
+			builder.setWhen(eCard.getDisplayTime());
+		} else if (eCard.hasNotificationTime()) {
 			builder.setWhen(eCard.getNotificationTime());
 		}
 		if (intent != null) {
@@ -130,7 +130,7 @@ public class CardNotification {
 		final NotificationManager nm = (NotificationManager) context
 				.getSystemService(Context.NOTIFICATION_SERVICE);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ECLAIR) {
-			nm.notify(NOTIFICATION_TAG, number, notification);
+			nm.notify(NOTIFICATION_TAG, 0, notification);
 		} else {
 			nm.notify(NOTIFICATION_TAG.hashCode(), notification);
 		}

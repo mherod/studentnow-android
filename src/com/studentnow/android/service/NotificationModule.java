@@ -47,7 +47,7 @@ public class NotificationModule extends ServiceModule {
 	public void load() {
 		String folder = OFiles.getFolder(mLiveService);
 		try {
-			persistence = (NotificationPersistance) OFiles.readObject(folder
+			persistence = (NotificationPersistance) OFiles.read(folder
 					+ FILE_PERSISTANCE);
 			Log.i(TAG, "Recovered " + FILE_PERSISTANCE);
 		} catch (Exception e) {
@@ -96,7 +96,7 @@ public class NotificationModule extends ServiceModule {
 				CardNotification.notify(mLiveService, c, i, 0);
 				Log.i(TAG, "Posted notification scheduled for " + nt);
 			} else if (0 < nt) {
-				Log.i(TAG, "Notification in " + (nt - ct) / 1000 + "ms");
+				Log.i(TAG, "Notification in " + ((nt - ct) / 1000) + "s");
 			}
 		}
 		persistence.lastMs = ct;

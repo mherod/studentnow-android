@@ -95,6 +95,9 @@ public class LoginActivity extends Activity {
 	@Override
 	public void onResume() {
 		super.onResume();
+
+		CardActivity.finishAll(this);
+
 		serviceLink.start();
 	}
 
@@ -237,6 +240,9 @@ public class LoginActivity extends Activity {
 
 					setResult(RESULT_OK, new Intent());
 
+					startActivity(new Intent(LoginActivity.this,
+							CardActivity.class));
+					
 					finish();
 					break;
 

@@ -64,21 +64,23 @@ public class LiveService extends Service implements Runnable {
 
 		modules.add(new AccountModule(this));
 		modules.add(new UserSyncModule(this));
-		modules.add(new PushModule(this));
+		modules.add(new PostModule(this));
 		modules.add(new CardProviderModule(this));
 		modules.add(new NotificationModule(this));
 		modules.add(new LocationModule(this));
 		modules.add(new SignatureCheckModule(this));
-		
+
 		for (ServiceModule m : modules) {
 			m.link();
 		}
- 		for (ServiceModule m : modules) {
+		for (ServiceModule m : modules) {
 			m.load();
 		}
 		for (ServiceModule m : modules) {
 			m.schedule();
 		}
+
+		List<ServiceModule> retrySaveModule = new ArrayList<ServiceModule>();
 
 		long t = 0, tt = 0;
 		int saveTicker = 0;
@@ -86,6 +88,17 @@ public class LiveService extends Service implements Runnable {
 		serviceCycle = true;
 		while (!mServiceThread.isInterrupted()) {
 			for (ServiceModule m : modules) {
+				String moduleName = m.getClass().getSimpleName();
+				try {
+					if (retrySaveModule.contains(m) && m.save()) {
+						retrySaveModule.remove(m);
+						Log.i(TAG, "Saved " + moduleName
+								+ " successfully after previous failure");
+
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				try {
 					t = System.currentTimeMillis();
 					m.cycle();
@@ -98,25 +111,31 @@ public class LiveService extends Service implements Runnable {
 				} catch (InterruptedException e) {
 				}
 				if (tt > 100) {
-					Log.w(TAG, "Cycle for " + m.getClass().getSimpleName()
-							+ " took " + tt + "ms");
+					Log.w(TAG, "Cycle for " + moduleName + " took " + tt + "ms");
 				}
 			}
 			if (saveTicker++ > 30) {
 				saveTicker = 0;
 			}
 			if (saveTicker == 0) {
+				retrySaveModule.clear(); // Saving all next so clear up
 				for (ServiceModule m : modules) {
+					boolean saved = false;
 					try {
-						m.save();
+						saved = m.save();
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+					if (!saved && retrySaveModule.add(m)) {
+						String moduleName = m.getClass().getSimpleName();
+						Log.e(TAG, "Failed to save " + moduleName
+								+ "... scheduled priority retry");
+					}
 				}
-			}
-			try {
-				Thread.sleep(50);
-			} catch (InterruptedException e) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+				}
 			}
 		}
 	}
